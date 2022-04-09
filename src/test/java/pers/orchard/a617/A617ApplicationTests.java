@@ -1,4 +1,4 @@
-package pers.orchard.A617;
+package pers.orchard.a617;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

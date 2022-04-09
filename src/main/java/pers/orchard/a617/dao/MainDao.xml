@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pers.orchard.a617.dao.MainDao">
+    <resultMap id="DeviceResultMap" type="pers.orchard.a617.bean.Device">
+        <id column="id" jdbcType="INTEGER" property="ID"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="date_registered" jdbcType="VARCHAR" property="dateRegistered"/>
+        <result column="date_visited" jdbcType="VARCHAR" property="dateVisited"/>
+    </resultMap>
+
+    <select id="selectAllDevice" resultMap="DeviceResultMap">
+        select *
+        from device;
+    </select>
+
+    <select id="selectAllFolder" resultType="pers.orchard.a617.bean.photo.PhotoFolder">
+        select *
+        from photo_folder;
+    </select>
+</mapper>

@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-Main-Class: pers.orchard.A617.A617Application
+Main-Class: pers.orchard.a617.A617Application
 Class-Path: spring-boot-starter-web-3.0.0-M2.jar jackson-module-paramete
  r-names-2.13.2.jar tomcat-embed-core-10.0.18.jar spring-context-6.0.0-M
  3.jar thymeleaf-extras-java8time-3.0.4.RELEASE.jar spring-boot-starter-

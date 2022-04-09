@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <settings>
+        <setting name="cacheEnabled" value="true"/>
+        <setting name="useGeneratedKeys" value="true"/>
+        <setting name="defaultExecutorType" value="REUSE"/>
+        <setting name="localCacheScope" value="STATEMENT"/>
+    </settings>
+    <typeAliases>
+        <typeAlias alias="Device" type="pers.orchard.a617.bean.Device"/>
+    </typeAliases>
+
+    <environments default="development">
+        <environment id="development">
+            <transactionManager type="JDBC"/>
+            <dataSource type="UNPOOLED">
+                <property name="driver" value="com.mysql.cj.jdbc.Driver"/>
+                <property name="url"
+                          value="jdbc:mysql://localhost:3306/a569?serverTimezone=UTC"/>
+                <property name="username" value="root"/>
+                <property name="password" value="4722"/>
+                <!--                <property name="poolMaximumIdleConnections" value="0"/>-->
+                <!--                <property name="poolMaximumActiveConnections" value="1000"/>-->
+                <!--                <property name="defaultAutoCommit" value="true"/>-->
+            </dataSource>
+        </environment>
+    </environments>
+
+    <mappers>
+        <mapper resource="pers/orchard/a617/dao/MainDao.xml"/>
+    </mappers>
+
+</configuration>

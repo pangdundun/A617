@@ -1,4 +1,4 @@
-package pers.orchard.A617;
+package pers.orchard.a617;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
