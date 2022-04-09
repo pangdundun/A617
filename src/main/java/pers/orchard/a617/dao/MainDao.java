@@ -4,9 +4,14 @@ import org.apache.ibatis.annotations.Mapper;
 import pers.orchard.a617.bean.Device;
 import pers.orchard.a617.bean.photo.PhotoFolder;
 
+import java.util.List;
+
 @Mapper
 public interface MainDao {
-    Device selectAllDevice();
 
-    PhotoFolder selectAllFolder();
+    List<Device> selectAllDevice();
+
+    int select1();
+
+    List<PhotoFolder> selectAllFolder();
 }

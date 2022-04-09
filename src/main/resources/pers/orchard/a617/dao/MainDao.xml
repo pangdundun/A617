@@ -4,8 +4,8 @@
     <resultMap id="DeviceResultMap" type="pers.orchard.a617.bean.Device">
         <id column="id" jdbcType="INTEGER" property="ID"/>
         <result column="name" jdbcType="VARCHAR" property="name"/>
-        <result column="date_registered" jdbcType="VARCHAR" property="dateRegistered"/>
-        <result column="date_visited" jdbcType="VARCHAR" property="dateVisited"/>
+        <result column="date_registered" jdbcType="DATE" property="dateRegistered"/>
+        <result column="date_visited" jdbcType="DATE" property="dateVisited"/>
     </resultMap>
 
     <select id="selectAllDevice" resultMap="DeviceResultMap">
@@ -16,5 +16,9 @@
     <select id="selectAllFolder" resultType="pers.orchard.a617.bean.photo.PhotoFolder">
         select *
         from photo_folder;
+    </select>
+
+    <select id="select1" resultType="java.lang.Integer">
+        select 1;
     </select>
 </mapper>

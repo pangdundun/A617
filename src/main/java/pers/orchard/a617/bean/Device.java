@@ -2,12 +2,14 @@ package pers.orchard.a617.bean;
 
 import org.springframework.lang.NonNull;
 
+import java.util.Date;
+
 public class Device {
     private Integer ID;
     private String name;
 
-    private String dateRegistered;
-    private String dateVisited;
+    private Date dateRegistered;
+    private Date dateVisited;
 
     public Device() {
     }
@@ -28,19 +30,19 @@ public class Device {
         this.name = name;
     }
 
-    public String getDateRegistered() {
+    public Date getDateRegistered() {
         return dateRegistered;
     }
 
-    public void setDateRegistered(String dateRegistered) {
+    public void setDateRegistered(Date dateRegistered) {
         this.dateRegistered = dateRegistered;
     }
 
-    public String getDateVisited() {
+    public Date getDateVisited() {
         return dateVisited;
     }
 
-    public void setDateVisited(String dateVisited) {
+    public void setDateVisited(Date dateVisited) {
         this.dateVisited = dateVisited;
     }
 
