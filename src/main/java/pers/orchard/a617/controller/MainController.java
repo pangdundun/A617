@@ -13,12 +13,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import pers.orchard.a617.constant.RequestCode;
 import pers.orchard.a617.service.FullPullService;
 import pers.orchard.a617.service.IncreaseService;
-import pers.orchard.a617.bean.Device;
 import pers.orchard.a617.bean.Version;
 import pers.orchard.a617.service.CalibrationService;
+import pers.orchard.a617.service.TestService;
 
 import java.util.Calendar;
-import java.util.List;
 
 @Controller
 public class MainController {
@@ -27,12 +26,14 @@ public class MainController {
     private final CalibrationService calibrationService;
     private final IncreaseService increaseService;
     private final FullPullService fullPullService;
+    private final TestService testService;
 
     @Autowired
-    public MainController(CalibrationService calibrationService, IncreaseService increaseService, FullPullService fullPullService) {
+    public MainController(CalibrationService calibrationService, IncreaseService increaseService, FullPullService fullPullService, TestService testService) {
         this.calibrationService = calibrationService;
         this.increaseService = increaseService;
         this.fullPullService = fullPullService;
+        this.testService = testService;
     }
 
     @Contract(pure = true)
@@ -47,9 +48,6 @@ public class MainController {
         jsonObject.put("generateDevice", "cloud");
         jsonObject.put("dataType", "device");
         jsonObject.put("rule", "overwrite");
-
-        List<Device> devices = increaseService.getAllDevice();
-        jsonObject.put("data", devices);
 
         return jsonObject.toJSONString();
     }
@@ -73,6 +71,45 @@ public class MainController {
 //        Version version = Transform.transform(versionObject);
         Version version = versionObject.toJavaObject(Version.class);
         return calibrationService.calibration(version);
+    }
+
+    @RequestMapping("increase")
+    @ResponseBody
+    private String increase(@NotNull @RequestBody String json) {
+        JSONObject resultObj = new JSONObject();
+        long startTime = Calendar.getInstance().getTime().getTime();
+
+        JSONObject parse = JSON.parseObject(json);
+        Integer requestCode = parse.getInteger("requestCode");
+        Integer deviceID = parse.getInteger("deviceID");
+        JSONArray records = parse.getJSONArray("record");
+
+        boolean error = false;
+
+        if (deviceID == null) {
+            error = true;
+        } else {
+            resultObj.put("deviceID", deviceID);
+        }
+
+        if (requestCode == null || records == null) {
+            error = true;
+        }
+
+        if (!error) {
+            boolean status = increaseService.responseRecords(records);
+            if (status) {
+                JSONDataHelper.setResOK(resultObj);
+            } else {
+                JSONDataHelper.setResServerDBError(resultObj);
+            }
+
+        } else {
+            JSONDataHelper.setResDataIncorrect(resultObj);
+        }
+
+        JSONDataHelper.setFinishTimeAndTimeConsuming(resultObj, startTime);
+        return resultObj.toJSONString();
     }
 
     @RequestMapping("fullPull")
@@ -122,8 +159,7 @@ public class MainController {
     @RequestMapping("clearAllTable")
     @ResponseBody
     private void clear() {
-        increaseService.clearAllTable();
+        testService.clearAllTable();
     }
-
 
 }
