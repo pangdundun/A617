@@ -2,6 +2,8 @@ package pers.orchard.a617.bean.photo;
 
 import org.springframework.lang.NonNull;
 
+import java.util.Date;
+
 public class PhotoFolder {
     private Integer ID;
     private Integer IDParent;
@@ -13,8 +15,8 @@ public class PhotoFolder {
 
     private String description;
 
-    private String dateCreated;
-    private String dateUpdated;
+    private Date dateCreated;
+    private Date dateUpdated;
     private Integer countUpdated;
 
     public PhotoFolder() {
@@ -76,19 +78,19 @@ public class PhotoFolder {
         this.description = description;
     }
 
-    public String getDateCreated() {
+    public Date getDateCreated() {
         return dateCreated;
     }
 
-    public void setDateCreated(String dateCreated) {
+    public void setDateCreated(Date dateCreated) {
         this.dateCreated = dateCreated;
     }
 
-    public String getDateUpdated() {
+    public Date getDateUpdated() {
         return dateUpdated;
     }
 
-    public void setDateUpdated(String dateUpdated) {
+    public void setDateUpdated(Date dateUpdated) {
         this.dateUpdated = dateUpdated;
     }
 

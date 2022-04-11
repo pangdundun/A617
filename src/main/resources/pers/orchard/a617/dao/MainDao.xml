@@ -8,17 +8,147 @@
         <result column="date_visited" jdbcType="DATE" property="dateVisited"/>
     </resultMap>
 
+    <resultMap id="FolderResultMap" type="pers.orchard.a617.bean.photo.PhotoFolder">
+        <id column="id" jdbcType="INTEGER" property="ID"/>
+        <result column="id_parent" jdbcType="INTEGER" property="IDParent"/>
+        <result column="id_created_device" jdbcType="INTEGER" property="IDCreatedDevice"/>
+        <result column="id_cover" jdbcType="INTEGER" property="IDCover"/>
+        <result column="name_storage" jdbcType="VARCHAR" property="nameStorage"/>
+        <result column="name_display" jdbcType="VARCHAR" property="nameDisplay"/>
+        <result column="description" jdbcType="VARCHAR" property="description"/>
+        <result column="date_created" jdbcType="TIMESTAMP" property="dateCreated"/>
+        <result column="date_updated" jdbcType="TIMESTAMP" property="dateUpdated"/>
+        <result column="count_updated" jdbcType="INTEGER" property="countUpdated"/>
+    </resultMap>
+
+    <resultMap id="PhotoResultMap" type="pers.orchard.a617.bean.photo.PhotoPhoto">
+        <id column="id" jdbcType="INTEGER" property="ID"/>
+        <result column="id_folder" jdbcType="INTEGER" property="IDFolder"/>
+        <result column="ids_tag" jdbcType="VARCHAR" property="IDsTagTransfer"/>
+        <result column="id_register_device" jdbcType="INTEGER" property="IDRegisterDevice"/>
+        <result column="ids_storage_device" jdbcType="VARCHAR" property="IDsStorageDeviceTransfer"/>
+        <result column="name_display" jdbcType="VARCHAR" property="nameDisplay"/>
+        <result column="name_storage" jdbcType="VARCHAR" property="nameStorage"/>
+        <result column="name_register" jdbcType="VARCHAR" property="nameRegister"/>
+        <result column="name_folder" jdbcType="VARCHAR" property="nameFolder"/>
+        <result column="names_tag" jdbcType="VARCHAR" property="namesTagTransfer"/>
+        <result column="names_storage_device" jdbcType="VARCHAR" property="namesStorageDeviceTransfer"/>
+        <result column="file_size" jdbcType="INTEGER" property="fileSize"/>
+        <result column="width" jdbcType="INTEGER" property="width"/>
+        <result column="height" jdbcType="INTEGER" property="height"/>
+        <result column="mime_type" jdbcType="VARCHAR" property="mimeType"/>
+        <result column="latitude" jdbcType="VARCHAR" property="latitude"/>
+        <result column="longitude" jdbcType="VARCHAR" property="longitude"/>
+        <result column="orientation" jdbcType="INTEGER" property="orientation"/>
+        <result column="date_taken" jdbcType="TIMESTAMP" property="dateTaken"/>
+        <result column="description" jdbcType="VARCHAR" property="description"/>
+        <result column="md5" jdbcType="VARCHAR" property="MD5"/>
+        <result column="presence_local_full" jdbcType="BOOLEAN" property="presenceLocalFull"/>
+        <result column="presence_local_thumb" jdbcType="BOOLEAN" property="presenceLocalThumb"/>
+        <result column="presence_cloud_thumb" jdbcType="BOOLEAN" property="presenceCloudThumb"/>
+        <result column="path_local_full" jdbcType="VARCHAR" property="pathLocalFull"/>
+        <result column="path_local_thumb" jdbcType="VARCHAR" property="pathLocalThumb"/>
+        <result column="date_registered" jdbcType="TIMESTAMP" property="dateRegistered"/>
+        <result column="date_updated" jdbcType="TIMESTAMP" property="dateUpdated"/>
+        <result column="count_updated" jdbcType="INTEGER" property="countUpdated"/>
+    </resultMap>
+
+    <resultMap id="LabelResultMap" type="pers.orchard.a617.bean.photo.PhotoTagPhoto">
+        <id column="id" jdbcType="INTEGER" property="ID"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="date_created" jdbcType="TIMESTAMP" property="dateCreated"/>
+        <result column="date_updated" jdbcType="TIMESTAMP" property="dateUpdated"/>
+        <result column="count_updated" jdbcType="INTEGER" property="countUpdated"/>
+    </resultMap>
+
+    <resultMap id="VersionResultMap" type="pers.orchard.a617.bean.Version">
+        <result column="device_version" jdbcType="INTEGER" property="deviceVersion"/>
+        <result column="device_date" jdbcType="TIMESTAMP" property="deviceDateUpdated"/>
+        <result column="folder_version" jdbcType="INTEGER" property="folderVersion"/>
+        <result column="folder_date" jdbcType="TIMESTAMP" property="folderDateUpdated"/>
+        <result column="photo_version" jdbcType="INTEGER" property="photoVersion"/>
+        <result column="photo_date" jdbcType="TIMESTAMP" property="photoDateUpdated"/>
+        <result column="label_version" jdbcType="INTEGER" property="labelVersion"/>
+        <result column="label_date" jdbcType="TIMESTAMP" property="labelDateUpdated"/>
+    </resultMap>
+
+    <insert id="initialVersion">
+        insert into version (name, version)
+        VALUES ('device', 1),
+               ('folder', 1),
+               ('photo', 1),
+               ('label', 1)
+        on duplicate key update date_updated = current_timestamp,
+                                version      = version + 1;
+    </insert>
+
+    <insert id="initialDevice">
+        insert into device (id, name)
+        VALUES (0, 'system');
+    </insert>
+
+    <insert id="initialFolder">
+        insert into photo_folder (id, id_parent, id_created_device, id_cover, name_storage, name_display, description)
+        VALUES (0, 0, 0, 0, 'root', 'root', '');
+    </insert>
+
+    <delete id="clearVersion">
+        delete
+        from version;
+    </delete>
+
+    <delete id="clearDevice">
+        delete
+        from device;
+    </delete>
+
+    <delete id="clearFolder">
+        delete
+        from photo_folder;
+    </delete>
+
+    <delete id="clearPhoto">
+        delete
+        from photo_photo;
+    </delete>
+
+    <delete id="clearLabel">
+        delete
+        from photo_label;
+    </delete>
+
     <select id="selectAllDevice" resultMap="DeviceResultMap">
         select *
         from device;
     </select>
 
-    <select id="selectAllFolder" resultType="pers.orchard.a617.bean.photo.PhotoFolder">
+    <select id="selectAllFolder" resultMap="FolderResultMap">
         select *
         from photo_folder;
     </select>
 
-    <select id="select1" resultType="java.lang.Integer">
-        select 1;
+    <select id="selectAllPhoto" resultMap="PhotoResultMap">
+        select *
+        from photo_photo;
+    </select>
+
+    <select id="selectAllLabel" resultMap="LabelResultMap">
+        select *
+        from photo_label;
+    </select>
+
+    <select id="selectAllVersion" resultMap="VersionResultMap">
+        select *
+        from ((select version device_version, date_updated device_date
+               from version
+               where name = 'device') tabel1, (select version folder_version, date_updated folder_date
+                                               from version
+                                               where name = 'folder') table2,
+              (select version photo_version, date_updated photo_date
+               from version
+               where name = 'photo') table3,
+              (select version label_version, date_updated label_date
+               from version
+               where name = 'label') table4);
     </select>
 </mapper>

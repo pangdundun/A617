@@ -2,12 +2,14 @@ package pers.orchard.a617.bean.photo;
 
 import org.springframework.lang.NonNull;
 
+import java.util.Date;
+
 public class PhotoTagPhoto {
     private Integer ID;
     private String name;
 
-    private String dateCreated;
-    private String dateUpdated;
+    private Date dateCreated;
+    private Date dateUpdated;
     private Integer countUpdated;
 
     public PhotoTagPhoto() {
@@ -30,19 +32,19 @@ public class PhotoTagPhoto {
         this.name = name;
     }
 
-    public String getDateCreated() {
+    public Date getDateCreated() {
         return dateCreated;
     }
 
-    public void setDateCreated(String dateCreated) {
+    public void setDateCreated(Date dateCreated) {
         this.dateCreated = dateCreated;
     }
 
-    public String getDateUpdated() {
+    public Date getDateUpdated() {
         return dateUpdated;
     }
 
-    public void setDateUpdated(String dateUpdated) {
+    public void setDateUpdated(Date dateUpdated) {
         this.dateUpdated = dateUpdated;
     }
 
@@ -55,8 +57,13 @@ public class PhotoTagPhoto {
     }
 
     @Override
-    @NonNull
     public String toString() {
-        return "PhotoTagPhoto{" + "ID=" + ID + ", name='" + name + '\'' + ", dateCreated='" + dateCreated + '\'' + ", dateUpdated='" + dateUpdated + '\'' + ", countUpdated='" + countUpdated + '\'' + '}';
+        return "PhotoTagPhoto{" +
+                "ID=" + ID +
+                ", name='" + name + '\'' +
+                ", dateCreated=" + dateCreated +
+                ", dateUpdated=" + dateUpdated +
+                ", countUpdated=" + countUpdated +
+                '}';
     }
 }

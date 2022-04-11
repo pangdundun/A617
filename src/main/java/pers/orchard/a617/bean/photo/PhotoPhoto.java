@@ -1,23 +1,30 @@
 package pers.orchard.a617.bean.photo;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import org.springframework.lang.NonNull;
 
 import java.util.Arrays;
+import java.util.Date;
 
 public class PhotoPhoto {
     private Integer ID;
     private Integer IDFolder;
     private Integer IDStory;
     private Integer[] IDsTag;
+    private String IDsTagTransfer;
     private Integer IDRegisterDevice;
     private Integer[] IDsStorageDevice;
+    private String IDsStorageDeviceTransfer;
 
     private String nameDisplay;
     private String nameStorage;
     private String nameRegister;
     private String nameFolder;
     private String[] namesTag;
+    private String namesTagTransfer;
     private String[] namesStorageDevice;
+    private String namesStorageDeviceTransfer;
 
     private Integer fileSize;
     private Integer width;
@@ -26,7 +33,7 @@ public class PhotoPhoto {
     private Integer latitude;
     private Integer longitude;
     private Integer orientation;
-    private String dateTaken;
+    private Date dateTaken;
     private String description;
     private String MD5;
 
@@ -36,11 +43,15 @@ public class PhotoPhoto {
     private String pathLocalFull;
     private String pathLocalThumb;
 
-    private String dateRegistered;
-    private String dateUpdated;
+    private Date dateRegistered;
+    private Date dateUpdated;
     private Integer countUpdated;
 
     public PhotoPhoto() {
+    }
+
+    public Integer getID() {
+        return ID;
     }
 
     public void setID(Integer ID) {
@@ -71,6 +82,20 @@ public class PhotoPhoto {
         this.IDsTag = IDsTag;
     }
 
+    public String getIDsTagTransfer() {
+        return JSON.toJSONString(IDsTag);
+    }
+
+    public void setIDsTagTransfer(String IDsTagTransfer) {
+        JSONArray array = JSON.parseArray(IDsTagTransfer);
+
+        Integer[] arr = new Integer[array.size()];
+        for (int i = 0; i < array.size(); i++) {
+            arr[i] = array.getInteger(i);
+        }
+        IDsTag = arr;
+    }
+
     public Integer getIDRegisterDevice() {
         return IDRegisterDevice;
     }
@@ -85,6 +110,20 @@ public class PhotoPhoto {
 
     public void setIDsStorageDevice(Integer[] IDsStorageDevice) {
         this.IDsStorageDevice = IDsStorageDevice;
+    }
+
+    public String getIDsStorageDeviceTransfer() {
+        return JSON.toJSONString(IDsStorageDevice);
+    }
+
+    public void setIDsStorageDeviceTransfer(String IDsStorageDeviceTransfer) {
+        JSONArray array = JSON.parseArray(IDsStorageDeviceTransfer);
+
+        Integer[] arr = new Integer[array.size()];
+        for (int i = 0; i < array.size(); i++) {
+            arr[i] = array.getInteger(i);
+        }
+        IDsStorageDevice = arr;
     }
 
     public String getNameDisplay() {
@@ -127,12 +166,40 @@ public class PhotoPhoto {
         this.namesTag = namesTag;
     }
 
+    public String getNamesTagTransfer() {
+        return JSON.toJSONString(namesTag);
+    }
+
+    public void setNamesTagTransfer(String namesTagTransfer) {
+        JSONArray array = JSON.parseArray(namesTagTransfer);
+
+        String[] arr = new String[array.size()];
+        for (int i = 0; i < array.size(); i++) {
+            arr[i] = array.getString(i);
+        }
+        namesTag = arr;
+    }
+
     public String[] getNamesStorageDevice() {
         return namesStorageDevice;
     }
 
     public void setNamesStorageDevice(String[] namesStorageDevice) {
         this.namesStorageDevice = namesStorageDevice;
+    }
+
+    public String getNamesStorageDeviceTransfer() {
+        return JSON.toJSONString(namesStorageDevice);
+    }
+
+    public void setNamesStorageDeviceTransfer(String namesStorageDeviceTransfer) {
+        JSONArray array = JSON.parseArray(namesStorageDeviceTransfer);
+
+        String[] arr = new String[array.size()];
+        for (int i = 0; i < array.size(); i++) {
+            arr[i] = array.getString(i);
+        }
+        namesStorageDevice = arr;
     }
 
     public Integer getFileSize() {
@@ -191,11 +258,11 @@ public class PhotoPhoto {
         this.orientation = orientation;
     }
 
-    public String getDateTaken() {
+    public Date getDateTaken() {
         return dateTaken;
     }
 
-    public void setDateTaken(String dateTaken) {
+    public void setDateTaken(Date dateTaken) {
         this.dateTaken = dateTaken;
     }
 
@@ -255,19 +322,19 @@ public class PhotoPhoto {
         this.pathLocalThumb = pathLocalThumb;
     }
 
-    public String getDateRegistered() {
+    public Date getDateRegistered() {
         return dateRegistered;
     }
 
-    public void setDateRegistered(String dateRegistered) {
+    public void setDateRegistered(Date dateRegistered) {
         this.dateRegistered = dateRegistered;
     }
 
-    public String getDateUpdated() {
+    public Date getDateUpdated() {
         return dateUpdated;
     }
 
-    public void setDateUpdated(String dateUpdated) {
+    public void setDateUpdated(Date dateUpdated) {
         this.dateUpdated = dateUpdated;
     }
 
@@ -280,7 +347,6 @@ public class PhotoPhoto {
     }
 
     @Override
-    @NonNull
     public String toString() {
         return "PhotoPhoto{" +
                 "ID=" + ID +
@@ -304,7 +370,7 @@ public class PhotoPhoto {
                 ", orientation=" + orientation +
                 ", dateTaken='" + dateTaken + '\'' +
                 ", description='" + description + '\'' +
-                ", md5='" + MD5 + '\'' +
+                ", MD5='" + MD5 + '\'' +
                 ", presenceLocalFull=" + presenceLocalFull +
                 ", presenceLocalThumb=" + presenceLocalThumb +
                 ", presenceCloudThumb=" + presenceCloudThumb +
@@ -315,6 +381,4 @@ public class PhotoPhoto {
                 ", countUpdated=" + countUpdated +
                 '}';
     }
-
-
 }
