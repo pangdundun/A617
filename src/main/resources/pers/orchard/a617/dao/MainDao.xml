@@ -92,6 +92,138 @@
         VALUES (0, 0, 0, 0, 'root', 'root', '');
     </insert>
 
+    <insert id="insertSomeDevice" parameterType="list">
+        insert into device (id, name, date_registered, date_visited)
+        values
+        <foreach collection="list" item="device" separator=", ">
+            (#{device.ID}, #{device.name}, #{device.dateRegistered}, #{device.dateVisited})
+        </foreach>
+    </insert>
+
+    <insert id="insertSomeFolder" parameterType="list">
+        insert into photo_folder (id, id_parent, id_created_device, id_cover, name_storage, name_display, description,
+        date_created, date_updated, count_updated)
+        VALUES
+        <foreach collection="list" item="folder" separator=", ">
+            (#{folder.ID}, #{folder.IDParent}, #{folder.IDCreatedDevice}, #{folder.IDCover}, #{folder.nameStorage},
+            #{folder.nameDisplay}, #{folder.description}, #{folder.dateCreated}, #{folder.dateUpdated},
+            #{folder.countUpdated})
+        </foreach>
+    </insert>
+
+    <insert id="insertSomePhoto" parameterType="list">
+        insert into photo_photo (id, id_folder, ids_tag, id_register_device, ids_storage_device, name_display,
+        name_storage,
+        name_register, name_folder, names_tag, names_storage_device, file_size, width, height,
+        mime_type, latitude, longitude, orientation, date_taken, description, md5, presence_local_full,
+        presence_local_thumb, presence_cloud_thumb, path_local_full, path_local_thumb, date_registered,
+        date_updated, count_updated)
+        VALUES
+        <foreach collection="list" item="photo" separator=", ">
+            (#{photo.ID},#{photo.IDFolder},#{photo.IDsTagTransfer},#{photo.IDRegisterDevice},#{photo.IDsStorageDeviceTransfer},#{photo.nameDisplay},#{photo.nameStorage},#{photo.nameRegister},#{photo.nameFolder},#{photo.namesTagTransfer},#{photo.namesStorageDeviceTransfer},#{photo.fileSize},#{photo.width},#{photo.height},#{photo.mimeType},#{photo.latitude},#{photo.longitude},#{photo.orientation},#{photo.dateTaken},#{photo.description},#{photo.MD5},#{photo.presenceLocalFull},#{photo.presenceLocalThumb},#{photo.presenceCloudThumb},#{photo.pathLocalFull},#{photo.pathLocalThumb},#{photo.dateRegistered},#{photo.dateRegistered},#{photo.countUpdated})
+        </foreach>
+    </insert>
+
+    <insert id="insertSomeLabel" parameterType="list">
+        insert into photo_label (id, name, date_created, date_updated, count_updated)
+        values
+        <foreach collection="list" item="label" separator=", ">
+            (#{label.ID},#{label.name},#{label.dateCreated},#{label.dateUpdated},#{label.countUpdated})
+        </foreach>
+    </insert>
+
+    <update id="updateDevice" parameterType="pers.orchard.a617.bean.Device">
+        UPDATE device t
+        SET t.name            = #{name},
+            t.date_registered = #{dateRegistered},
+            t.date_visited    = #{dateVisited}
+        WHERE t.id = #{ID};
+    </update>
+
+    <update id="updateFolder" parameterType="pers.orchard.a617.bean.photo.PhotoFolder">
+        UPDATE photo_folder t
+        SET t.id_parent         = #{IDParent},
+            t.id_created_device = #{IDCreatedDevice},
+            t.id_cover          = #{IDCover},
+            t.name_storage      = #{nameStorage},
+            t.name_display      = #{nameDisplay},
+            t.description       = #{description},
+            t.date_created      = #{dateCreated},
+            t.date_updated      = #{dateUpdated},
+            t.count_updated     = #{countUpdated}
+        WHERE t.id = #{ID}
+    </update>
+
+    <update id="updatePhoto" parameterType="pers.orchard.a617.bean.photo.PhotoPhoto">
+        UPDATE photo_photo t
+        SET t.id_folder            = #{IDFolder},
+            t.ids_tag              = #{IDsTagTransfer},
+            t.id_register_device   = #{IDRegisterDevice},
+            t.ids_storage_device   = #{IDsStorageDeviceTransfer},
+            t.name_display         = #{nameDisplay},
+            t.name_storage         = #{nameStorage},
+            t.name_register        = #{nameRegister},
+            t.name_folder          = #{nameFolder},
+            t.names_tag            = #{namesTagTransfer},
+            t.names_storage_device = #{namesStorageDeviceTransfer},
+            t.file_size            = #{fileSize},
+            t.width                = #{width},
+            t.height               = #{height},
+            t.mime_type            = #{mimeType},
+            t.latitude             = #{latitude},
+            t.longitude            = #{longitude},
+            t.orientation          = #{orientation},
+            t.date_taken           = #{dateTaken},
+            t.description          = #{description},
+            t.md5                  = #{MD5},
+            t.presence_local_full  = #{presenceLocalFull},
+            t.presence_local_thumb = #{presenceLocalThumb},
+            t.presence_cloud_thumb = #{presenceCloudThumb},
+            t.path_local_full      = #{presenceLocalFull},
+            t.path_local_thumb     = #{pathLocalThumb},
+            t.date_registered      = #{dateRegistered},
+            t.date_updated         = #{dateUpdated},
+            t.count_updated        = #{countUpdated}
+        WHERE t.id = #{ID};
+    </update>
+
+    <update id="updateLabel" parameterType="pers.orchard.a617.bean.photo.PhotoTagPhoto">
+        UPDATE photo_label t
+        SET t.name          = #{name},
+            t.date_created  = #{dateCreated},
+            t.date_updated  = #{dateUpdated},
+            t.count_updated = #{countUpdated}
+        WHERE t.id = #{ID};
+    </update>
+
+    <delete id="deleteSomeDevice" parameterType="list">
+        DELETE FROM device WHERE id in
+        <foreach collection="IDs" item="ID" open="(" close=")" separator=", ">
+            #{ID}
+        </foreach>
+    </delete>
+
+    <delete id="deleteSomeFolder">
+        DELETE FROM photo_folder WHERE id in
+        <foreach collection="IDs" item="ID" open="(" close=")" separator=", ">
+            #{ID}
+        </foreach>
+    </delete>
+
+    <delete id="deleteSomePhoto">
+        DELETE FROM photo_photo WHERE id in
+        <foreach collection="IDs" item="ID" open="(" close=")" separator=", ">
+            #{ID}
+        </foreach>
+    </delete>
+
+    <delete id="deleteSomeLabel">
+        DELETE FROM photo_label WHERE id in
+        <foreach collection="IDs" item="ID" open="(" close=")" separator=", ">
+            #{ID}
+        </foreach>
+    </delete>
+
     <delete id="clearVersion">
         delete
         from version;
@@ -144,11 +276,11 @@
                where name = 'device') tabel1, (select version folder_version, date_updated folder_date
                                                from version
                                                where name = 'folder') table2,
-              (select version photo_version, date_updated photo_date
-               from version
-               where name = 'photo') table3,
-              (select version label_version, date_updated label_date
-               from version
-               where name = 'label') table4);
+            (select version photo_version, date_updated photo_date
+             from version
+             where name = 'photo') table3,
+            (select version label_version, date_updated label_date
+             from version
+             where name = 'label') table4);
     </select>
 </mapper>

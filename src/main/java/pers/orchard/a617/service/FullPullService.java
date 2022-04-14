@@ -90,6 +90,15 @@ public class FullPullService {
         JSONArray array = new JSONArray();
         List<PhotoPhoto> photos = dao.selectAllPhoto();
         array.addAll(photos);
+
+        for (Object o : array) {
+            JSONObject obj = (JSONObject) o;
+            obj.remove("iDsStorageDeviceTransfer");
+            obj.remove("iDsTagTransfer");
+            obj.remove("namesStorageDeviceTransfer");
+            obj.remove("namesTagTransfer");
+        }
+
         object.put("data", array);
 
         return object;

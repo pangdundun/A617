@@ -8,7 +8,7 @@
         <setting name="localCacheScope" value="STATEMENT"/>
     </settings>
     <typeAliases>
-        <typeAlias alias="Device" type="pers.orchard.a617.bean.Device"/>
+        <package name="pers.orchard.a617.bean"/>
     </typeAliases>
 
     <environments default="development">

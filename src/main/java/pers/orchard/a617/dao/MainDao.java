@@ -28,6 +28,30 @@ public interface MainDao {
 
     void initialFolder();
 
+    int insertSomeDevice(List<Device> list);
+
+    int insertSomeFolder(List<PhotoFolder> list);
+
+    int insertSomePhoto(List<PhotoPhoto> list);
+
+    int insertSomeLabel(List<PhotoTagPhoto> list);
+
+    int updateDevice(Device device);
+
+    int updateFolder(PhotoFolder folder);
+
+    int updatePhoto(PhotoPhoto photo);
+
+    int updateLabel(PhotoTagPhoto label);
+
+    int deleteSomeDevice(List<Integer> IDs);
+
+    int deleteSomeFolder(List<Integer> IDs);
+
+    int deleteSomePhoto(List<Integer> IDs);
+
+    int deleteSomeLabel(List<Integer> IDs);
+
     void clearVersion();
 
     void clearDevice();

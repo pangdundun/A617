@@ -37,8 +37,7 @@ public class MainController {
     }
 
     @Contract(pure = true)
-//    @RequestMapping("")
-    @ResponseBody
+    @RequestMapping("")
     private @NotNull String info() {
         JSONObject jsonObject = new JSONObject();
 
@@ -81,28 +80,29 @@ public class MainController {
 
         JSONObject parse = JSON.parseObject(json);
         Integer requestCode = parse.getInteger("requestCode");
+        Long requestTime = parse.getLong("requestTime");
         Integer deviceID = parse.getInteger("deviceID");
         JSONArray records = parse.getJSONArray("record");
 
-        boolean error = false;
-
-        if (deviceID == null) {
-            error = true;
-        } else {
-            resultObj.put("deviceID", deviceID);
-        }
-
-        if (requestCode == null || records == null) {
-            error = true;
-        }
+        boolean error = requestCode == null;
+        error |= requestTime == null;
+        error |= deviceID == null;
+        error |= records == null || records.size() == 0;
 
         if (!error) {
-            boolean status = increaseService.responseRecords(records);
-            if (status) {
+            JSONObject object = increaseService.responseRecords(records);
+
+            JSONArray result = object.getJSONArray("result");
+            int resultErrorCount = object.getIntValue("resultErrorCount");
+
+            resultObj.put("result", result);
+            if (resultErrorCount == 0) {
                 JSONDataHelper.setResOK(resultObj);
             } else {
                 JSONDataHelper.setResServerDBError(resultObj);
             }
+
+            resultObj.put("deviceID", deviceID);
 
         } else {
             JSONDataHelper.setResDataIncorrect(resultObj);
