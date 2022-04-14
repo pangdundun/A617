@@ -13,15 +13,27 @@ public class TestService {
         this.dao = dao;
     }
 
+    public void createAllTable() {
+        dao.createVersionTable();
+        dao.createDeviceTable();
+        dao.createFolderTable();
+        dao.createPhotoTable();
+        dao.createLabelTable();
+    }
+
     public void clearAllTable() {
+        dao.closeForeignCheck();
+
         dao.clearVersion();
-        dao.clearDevice();
-        dao.clearFolder();
         dao.clearPhoto();
         dao.clearLabel();
+        dao.clearFolder();
+        dao.clearDevice();
+
+        dao.openForeignCheck();
 
         dao.initialVersion();
-        dao.initialDevice();
-        dao.initialFolder();
+//        dao.initialDevice();
+//        dao.initialFolder();
     }
 }

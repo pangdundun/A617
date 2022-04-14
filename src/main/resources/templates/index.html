@@ -5,6 +5,18 @@
     <title>Console</title>
 </head>
 <body>
-<div id="button-group"></div>
+<div id="button-group">
+    <button id="button2">fullPull</button>
+    <button id="button3">increase</button>
+    <button id="button-createAllTable">createAllTable</button>
+    <button id="button1">clearAllTable</button>
+</div>
+
+<label for="result-display">Result display area: </label>
+<br/>
+<textarea id="result-display" style="width: 500px; height: 400px"></textarea>
+
+<script th:src="@{frame.js}"></script>
+<script th:inline="javascript"></script>
 </body>
 </html>

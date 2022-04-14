@@ -72,6 +72,117 @@
         <result column="label_date" jdbcType="TIMESTAMP" property="labelDateUpdated"/>
     </resultMap>
 
+    <update id="createDeviceTable">
+        CREATE TABLE `device`
+        (
+            `id`              int  NOT NULL,
+            `name`            text NOT NULL,
+            `date_registered` datetime DEFAULT CURRENT_TIMESTAMP,
+            `date_visited`    datetime DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (`id`),
+            UNIQUE KEY `device_id_uindex` (`id`)
+        ) ENGINE = InnoDB
+          DEFAULT CHARSET = utf8mb4
+          COLLATE = utf8mb4_0900_ai_ci;
+    </update>
+
+    <update id="createFolderTable">
+        CREATE TABLE `photo_folder`
+        (
+            `id`                int      NOT NULL,
+            `id_parent`         int      NOT NULL DEFAULT '0',
+            `id_created_device` int      NOT NULL,
+            `id_cover`          int               DEFAULT NULL,
+            `name_storage`      text     NOT NULL,
+            `name_display`      text     NOT NULL,
+            `description`       text,
+            `date_created`      datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            `date_updated`      datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            `count_updated`     int      NOT NULL DEFAULT '0',
+            PRIMARY KEY (`id`),
+            UNIQUE KEY `photo_folder_id_uindex` (`id`),
+            KEY `id_parent` (`id_parent`),
+            KEY `id_created_device` (`id_created_device`),
+            KEY `id_cover` (`id_cover`),
+            CONSTRAINT `photo_folder_ibfk_1` FOREIGN KEY (`id_parent`) REFERENCES `photo_folder` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+            CONSTRAINT `photo_folder_ibfk_2` FOREIGN KEY (`id_created_device`) REFERENCES `device` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+            CONSTRAINT `photo_folder_ibfk_3` FOREIGN KEY (`id_cover`) REFERENCES `photo_photo` (`id`) ON DELETE SET NULL
+        ) ENGINE = InnoDB
+          DEFAULT CHARSET = utf8mb4
+          COLLATE = utf8mb4_0900_ai_ci;
+    </update>
+
+    <update id="createPhotoTable">
+        CREATE TABLE `photo_photo`
+        (
+            `id`                   int      NOT NULL,
+            `id_folder`            int      NOT NULL,
+            `ids_tag`              json     NOT NULL,
+            `id_register_device`   int      NOT NULL,
+            `ids_storage_device`   json     NOT NULL,
+            `name_display`         text,
+            `name_storage`         text     NOT NULL,
+            `name_register`        text     NOT NULL,
+            `name_folder`          text     NOT NULL,
+            `names_tag`            json     NOT NULL,
+            `names_storage_device` json     NOT NULL,
+            `file_size`            int               DEFAULT NULL,
+            `width`                int               DEFAULT NULL,
+            `height`               int               DEFAULT NULL,
+            `mime_type`            text,
+            `latitude`             text,
+            `longitude`            text,
+            `orientation`          int               DEFAULT NULL,
+            `date_taken`           datetime          DEFAULT CURRENT_TIMESTAMP,
+            `description`          text,
+            `md5`                  text     NOT NULL,
+            `presence_local_full`  tinyint(1)        DEFAULT '1',
+            `presence_local_thumb` tinyint(1)        DEFAULT '0',
+            `presence_cloud_thumb` tinyint(1)        DEFAULT '0',
+            `path_local_full`      text,
+            `path_local_thumb`     text,
+            `date_registered`      datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            `date_updated`         datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            `count_updated`        int      NOT NULL DEFAULT '0',
+            PRIMARY KEY (`id`),
+            UNIQUE KEY `photo_photo_id_uindex` (`id`),
+            KEY `id_folder` (`id_folder`),
+            KEY `id_register_device` (`id_register_device`),
+            CONSTRAINT `photo_photo_ibfk_1` FOREIGN KEY (`id_folder`) REFERENCES `photo_folder` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+            CONSTRAINT `photo_photo_ibfk_2` FOREIGN KEY (`id_register_device`) REFERENCES `device` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
+        ) ENGINE = InnoDB
+          DEFAULT CHARSET = utf8mb4
+          COLLATE = utf8mb4_0900_ai_ci;
+    </update>
+
+    <update id="createLabelTable">
+        CREATE TABLE `photo_label`
+        (
+            `id`            int          NOT NULL,
+            `name`          varchar(256) NOT NULL,
+            `date_created`  datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            `date_updated`  datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            `count_updated` int          NOT NULL DEFAULT '0',
+            PRIMARY KEY (`id`),
+            UNIQUE KEY `photo_label_id_uindex` (`id`),
+            UNIQUE KEY `photo_label_name_uindex` (`name`)
+        ) ENGINE = InnoDB
+          DEFAULT CHARSET = utf8mb4
+          COLLATE = utf8mb4_0900_ai_ci;
+    </update>
+
+    <update id="createVersionTable">
+        CREATE TABLE `version`
+        (
+            `name`         varchar(64) NOT NULL,
+            `version`      int         NOT NULL DEFAULT '0',
+            `date_updated` datetime             DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (`name`)
+        ) ENGINE = InnoDB
+          DEFAULT CHARSET = utf8mb4
+          COLLATE = utf8mb4_0900_ai_ci;
+    </update>
+
     <insert id="initialVersion">
         insert into version (name, version)
         VALUES ('device', 1),
@@ -89,7 +200,7 @@
 
     <insert id="initialFolder">
         insert into photo_folder (id, id_parent, id_created_device, id_cover, name_storage, name_display, description)
-        VALUES (0, 0, 0, 0, 'root', 'root', '');
+        VALUES (0, 0, 0, null, 'root', 'root', '');
     </insert>
 
     <insert id="insertSomeDevice" parameterType="list">
@@ -225,18 +336,19 @@
     </delete>
 
     <delete id="clearVersion">
-        delete
-        from version;
+        truncate table version;
     </delete>
 
     <delete id="clearDevice">
         delete
-        from device;
+        from device
+        where id != 0;
     </delete>
 
     <delete id="clearFolder">
         delete
-        from photo_folder;
+        from photo_folder
+        where id != 0;
     </delete>
 
     <delete id="clearPhoto">
@@ -283,4 +395,12 @@
              from version
              where name = 'label') table4);
     </select>
+
+    <update id="closeForeignCheck">
+        SET foreign_key_checks = 0;
+    </update>
+
+    <update id="openForeignCheck">
+        SET foreign_key_checks = 1;
+    </update>
 </mapper>

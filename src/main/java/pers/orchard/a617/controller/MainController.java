@@ -36,19 +36,9 @@ public class MainController {
         this.testService = testService;
     }
 
-    @Contract(pure = true)
     @RequestMapping("")
     private @NotNull String info() {
-        JSONObject jsonObject = new JSONObject();
-
-        long time = Calendar.getInstance().getTime().getTime();
-        jsonObject.put("createdTime", time);
-
-        jsonObject.put("generateDevice", "cloud");
-        jsonObject.put("dataType", "device");
-        jsonObject.put("rule", "overwrite");
-
-        return jsonObject.toJSONString();
+        return "index";
     }
 
     /**
@@ -70,46 +60,6 @@ public class MainController {
 //        Version version = Transform.transform(versionObject);
         Version version = versionObject.toJavaObject(Version.class);
         return calibrationService.calibration(version);
-    }
-
-    @RequestMapping("increase")
-    @ResponseBody
-    private String increase(@NotNull @RequestBody String json) {
-        JSONObject resultObj = new JSONObject();
-        long startTime = Calendar.getInstance().getTime().getTime();
-
-        JSONObject parse = JSON.parseObject(json);
-        Integer requestCode = parse.getInteger("requestCode");
-        Long requestTime = parse.getLong("requestTime");
-        Integer deviceID = parse.getInteger("deviceID");
-        JSONArray records = parse.getJSONArray("record");
-
-        boolean error = requestCode == null;
-        error |= requestTime == null;
-        error |= deviceID == null;
-        error |= records == null || records.size() == 0;
-
-        if (!error) {
-            JSONObject object = increaseService.responseRecords(records);
-
-            JSONArray result = object.getJSONArray("result");
-            int resultErrorCount = object.getIntValue("resultErrorCount");
-
-            resultObj.put("result", result);
-            if (resultErrorCount == 0) {
-                JSONDataHelper.setResOK(resultObj);
-            } else {
-                JSONDataHelper.setResServerDBError(resultObj);
-            }
-
-            resultObj.put("deviceID", deviceID);
-
-        } else {
-            JSONDataHelper.setResDataIncorrect(resultObj);
-        }
-
-        JSONDataHelper.setFinishTimeAndTimeConsuming(resultObj, startTime);
-        return resultObj.toJSONString();
     }
 
     @RequestMapping("fullPull")
@@ -156,10 +106,68 @@ public class MainController {
         return resultObj.toJSONString();
     }
 
+    @RequestMapping("increase")
+    @ResponseBody
+    private String increase(@NotNull @RequestBody String json) {
+        JSONObject resultObj = new JSONObject();
+        long startTime = Calendar.getInstance().getTime().getTime();
+
+        JSONObject parse = JSON.parseObject(json);
+        Integer requestCode = parse.getInteger("requestCode");
+        Long requestTime = parse.getLong("requestTime");
+        Integer deviceID = parse.getInteger("deviceID");
+        JSONArray records = parse.getJSONArray("record");
+
+        boolean error = requestCode == null;
+        error |= requestTime == null;
+        error |= deviceID == null;
+        error |= records == null || records.size() == 0;
+
+        if (!error) {
+            JSONObject object = increaseService.responseRecords(records);
+
+            JSONArray result = object.getJSONArray("result");
+            int resultErrorCount = object.getIntValue("resultErrorCount");
+
+            resultObj.put("result", result);
+            if (resultErrorCount == 0) {
+                JSONDataHelper.setResOK(resultObj);
+            } else {
+                JSONDataHelper.setResServerDBError(resultObj);
+            }
+
+            resultObj.put("deviceID", deviceID);
+
+        } else {
+            JSONDataHelper.setResDataIncorrect(resultObj);
+        }
+
+        JSONDataHelper.setFinishTimeAndTimeConsuming(resultObj, startTime);
+        return resultObj.toJSONString();
+    }
+
+    @RequestMapping("createAllTable")
+    @ResponseBody
+    private String create() {
+        JSONObject resultObj = new JSONObject();
+        long startTime = Calendar.getInstance().getTime().getTime();
+
+        testService.createAllTable();
+
+        JSONDataHelper.setFinishTimeAndTimeConsuming(resultObj, startTime);
+        return resultObj.toJSONString();
+    }
+
     @RequestMapping("clearAllTable")
     @ResponseBody
-    private void clear() {
+    private String clear() {
+        JSONObject resultObj = new JSONObject();
+        long startTime = Calendar.getInstance().getTime().getTime();
+
         testService.clearAllTable();
+
+        JSONDataHelper.setFinishTimeAndTimeConsuming(resultObj, startTime);
+        return resultObj.toJSONString();
     }
 
 }

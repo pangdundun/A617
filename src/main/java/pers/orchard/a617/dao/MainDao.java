@@ -12,6 +12,16 @@ import java.util.List;
 @Mapper
 public interface MainDao {
 
+    int createDeviceTable();
+
+    int createFolderTable();
+
+    int createPhotoTable();
+
+    int createLabelTable();
+
+    int createVersionTable();
+
     List<Device> selectAllDevice();
 
     List<PhotoFolder> selectAllFolder();
@@ -61,4 +71,8 @@ public interface MainDao {
     void clearPhoto();
 
     void clearLabel();
+
+    void closeForeignCheck();
+
+    void openForeignCheck();
 }
