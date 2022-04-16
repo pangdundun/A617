@@ -1,6 +1,5 @@
 package pers.orchard.a617.service;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import org.jetbrains.annotations.NotNull;
@@ -57,7 +56,7 @@ public class FullPullService {
         JSONObject object = new JSONObject();
 
         object.put("typeCode", TypeCode.DEVICE);
-        object.put("ruleCode", RuleCode.OVERWRITE);
+        object.put("ruleCode", RuleCode.COMMON_OVERWRITE);
 
         JSONArray array = new JSONArray();
         List<Device> devices = dao.selectAllDevice();
@@ -71,7 +70,7 @@ public class FullPullService {
         JSONObject object = new JSONObject();
 
         object.put("typeCode", TypeCode.FOLDER);
-        object.put("ruleCode", RuleCode.OVERWRITE);
+        object.put("ruleCode", RuleCode.COMMON_OVERWRITE);
 
         JSONArray array = new JSONArray();
         List<PhotoFolder> folders = dao.selectAllFolder();
@@ -85,7 +84,7 @@ public class FullPullService {
         JSONObject object = new JSONObject();
 
         object.put("typeCode", TypeCode.PHOTO);
-        object.put("ruleCode", RuleCode.OVERWRITE);
+        object.put("ruleCode", RuleCode.COMMON_OVERWRITE);
 
         JSONArray array = new JSONArray();
         List<PhotoPhoto> photos = dao.selectAllPhoto();
@@ -108,7 +107,7 @@ public class FullPullService {
         JSONObject object = new JSONObject();
 
         object.put("typeCode", TypeCode.LABEL);
-        object.put("ruleCode", RuleCode.OVERWRITE);
+        object.put("ruleCode", RuleCode.COMMON_OVERWRITE);
 
         JSONArray array = new JSONArray();
         List<PhotoTagPhoto> labels = dao.selectAllLabel();

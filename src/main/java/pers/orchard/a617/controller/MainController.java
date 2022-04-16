@@ -3,7 +3,6 @@ package pers.orchard.a617.controller;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -130,6 +129,8 @@ public class MainController {
             int resultErrorCount = object.getIntValue("resultErrorCount");
 
             resultObj.put("result", result);
+            resultObj.put("resultErrorCount", resultErrorCount);
+
             if (resultErrorCount == 0) {
                 JSONDataHelper.setResOK(resultObj);
             } else {
@@ -152,7 +153,7 @@ public class MainController {
         JSONObject resultObj = new JSONObject();
         long startTime = Calendar.getInstance().getTime().getTime();
 
-        testService.createAllTable();
+        testService.recreateAllTable();
 
         JSONDataHelper.setFinishTimeAndTimeConsuming(resultObj, startTime);
         return resultObj.toJSONString();
@@ -164,7 +165,7 @@ public class MainController {
         JSONObject resultObj = new JSONObject();
         long startTime = Calendar.getInstance().getTime().getTime();
 
-        testService.clearAllTable();
+        testService.initialAllTable();
 
         JSONDataHelper.setFinishTimeAndTimeConsuming(resultObj, startTime);
         return resultObj.toJSONString();

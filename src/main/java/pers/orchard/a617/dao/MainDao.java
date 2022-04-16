@@ -12,6 +12,16 @@ import java.util.List;
 @Mapper
 public interface MainDao {
 
+    int dropVersionTable();
+
+    int dropDeviceTable();
+
+    int dropFolderTable();
+
+    int dropPhotoTable();
+
+    int dropLabelTable();
+
     int createDeviceTable();
 
     int createFolderTable();
@@ -49,6 +59,8 @@ public interface MainDao {
     int updateDevice(Device device);
 
     int updateFolder(PhotoFolder folder);
+
+    int moveFolder(List<Integer> list);
 
     int updatePhoto(PhotoPhoto photo);
 

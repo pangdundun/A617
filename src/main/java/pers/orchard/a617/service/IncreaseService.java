@@ -56,41 +56,19 @@ public class IncreaseService {
         if (!error) {
             switch (typeCode) {
                 case TypeCode.DEVICE -> {
-                    error = handleDevice(record, new DeviceOperateCallback());
+                    error = new OperateCallbackDevice().handle(record);
                 }
                 case TypeCode.FOLDER -> {
-                    error = handleDevice(record, new FolderOperateCallback());
+                    error = new OperateCallbackFolder().handle(record);
                 }
                 case TypeCode.PHOTO -> {
-                    error = handleDevice(record, new PhotoOperateCallback());
+                    error = new OperateCallbackPhoto().handle(record);
                 }
                 case TypeCode.LABEL -> {
-                    error = handleDevice(record, new LabelOperateCallback());
+                    error = new OperateCallbackLabel().handle(record);
                 }
                 default -> {
-                }
-            }
-        }
-        return error;
-    }
-
-    private boolean handleDevice(@NotNull JSONObject record, DoOperateCallback callback) {
-        Integer ruleCode = record.getInteger("ruleCode");
-        JSONArray dataArr = record.getJSONArray("data");
-
-        boolean error = ruleCode == null;
-        error |= dataArr == null || dataArr.size() == 0;
-
-        if (!error) {
-            switch (ruleCode) {
-                case RuleCode.INSERT -> {
-                    callback.doInsert(dataArr);
-                }
-                case RuleCode.UPDATE -> {
-                    callback.doUpdate(dataArr);
-                }
-                case RuleCode.DELETE -> {
-                    callback.doDelete(dataArr);
+                    error = true;
                 }
             }
         }
@@ -98,16 +76,36 @@ public class IncreaseService {
     }
 
     private interface DoOperateCallback {
-        void doInsert(JSONArray dataArr);
+        boolean handle(@NotNull JSONObject record);
 
-        void doUpdate(JSONArray dataArr);
+        void doInsert(int ruleCode, @NotNull JSONArray dataArr);
 
-        void doDelete(JSONArray dataArr);
+        void doUpdate(int ruleCode, @NotNull JSONArray dataArr);
+
+        void doDelete(int ruleCode, @NotNull JSONArray dataArr);
     }
 
-    private class DeviceOperateCallback implements DoOperateCallback {
+    private class OperateCallbackDevice implements DoOperateCallback {
         @Override
-        public void doInsert(@NotNull JSONArray dataArr) {
+        public boolean handle(@NotNull JSONObject record) {
+            Integer ruleCode = record.getInteger("ruleCode");
+            JSONArray dataArr = record.getJSONArray("data");
+
+            boolean error = ruleCode == null;
+            error |= dataArr == null || dataArr.size() == 0;
+
+            if (!error) {
+                switch (ruleCode) {
+                    case RuleCode.COMMON_INSERT -> doInsert(ruleCode, dataArr);
+                    case RuleCode.COMMON_DELETE -> doDelete(ruleCode, dataArr);
+                    default -> error = true;
+                }
+            }
+            return error;
+        }
+
+        @Override
+        public void doInsert(int ruleCode, @NotNull JSONArray dataArr) {
             List<Device> list = new ArrayList<>();
             for (Object o : dataArr) {
                 JSONObject obj = (JSONObject) o;
@@ -118,16 +116,11 @@ public class IncreaseService {
         }
 
         @Override
-        public void doUpdate(@NotNull JSONArray dataArr) {
-            for (Object o : dataArr) {
-                JSONObject obj = (JSONObject) o;
-                Device device = obj.toJavaObject(Device.class);
-                dao.updateDevice(device);
-            }
+        public void doUpdate(int ruleCode, @NotNull JSONArray dataArr) {
         }
 
         @Override
-        public void doDelete(@NotNull JSONArray dataArr) {
+        public void doDelete(int ruleCode, @NotNull JSONArray dataArr) {
             List<Integer> IDs = new ArrayList<>();
             for (Object o : dataArr) {
                 Integer ID = (Integer) o;
@@ -137,9 +130,14 @@ public class IncreaseService {
         }
     }
 
-    private class FolderOperateCallback implements DoOperateCallback {
+    private class OperateCallbackFolder implements DoOperateCallback {
         @Override
-        public void doInsert(@NotNull JSONArray dataArr) {
+        public boolean handle(@NotNull JSONObject record) {
+            return false;
+        }
+
+        @Override
+        public void doInsert(int ruleCode, @NotNull JSONArray dataArr) {
             List<PhotoFolder> list = new ArrayList<>();
             for (Object o : dataArr) {
                 JSONObject obj = (JSONObject) o;
@@ -150,16 +148,41 @@ public class IncreaseService {
         }
 
         @Override
-        public void doUpdate(@NotNull JSONArray dataArr) {
-            for (Object o : dataArr) {
-                JSONObject obj = (JSONObject) o;
-                PhotoFolder folder = obj.toJavaObject(PhotoFolder.class);
-                dao.updateFolder(folder);
+        public void doUpdate(int ruleCode, @NotNull JSONArray dataArr) {
+            switch (ruleCode) {
+                case RuleCode.UPDATE_FOLDER_MOVE -> {
+                    List<Integer> IDs = new ArrayList<>();
+                    for (Object o : dataArr) {
+                        JSONObject obj = (JSONObject) o;
+                        PhotoFolder folder = obj.toJavaObject(PhotoFolder.class);
+                        Integer ID = folder.getID();
+                        if (ID != null && ID != 0) {
+                            IDs.add(ID);
+                        }
+                    }
+                    dao.moveFolder(IDs);
+                }
+                case RuleCode.UPDATE_FOLDER_RENAME -> {
+                    for (Object o : dataArr) {
+                        JSONObject obj = (JSONObject) o;
+                        PhotoFolder folder = obj.toJavaObject(PhotoFolder.class);
+                        dao.updateFolder(folder);
+                    }
+                }
+                case RuleCode.UPDATE_FOLDER_UPDATE_DESCRIPTION -> {
+                    for (Object o : dataArr) {
+                        JSONObject obj = (JSONObject) o;
+                        PhotoFolder folder = obj.toJavaObject(PhotoFolder.class);
+                        dao.updateFolder(folder);
+                    }
+                }
             }
+
+
         }
 
         @Override
-        public void doDelete(@NotNull JSONArray dataArr) {
+        public void doDelete(int ruleCode, @NotNull JSONArray dataArr) {
             List<Integer> IDs = new ArrayList<>();
             for (Object o : dataArr) {
                 Integer ID = (Integer) o;
@@ -169,9 +192,14 @@ public class IncreaseService {
         }
     }
 
-    private class PhotoOperateCallback implements DoOperateCallback {
+    private class OperateCallbackPhoto implements DoOperateCallback {
         @Override
-        public void doInsert(@NotNull JSONArray dataArr) {
+        public boolean handle(@NotNull JSONObject record) {
+            return false;
+        }
+
+        @Override
+        public void doInsert(int ruleCode, @NotNull JSONArray dataArr) {
             List<PhotoPhoto> list = new ArrayList<>();
             for (Object o : dataArr) {
                 JSONObject obj = (JSONObject) o;
@@ -182,7 +210,7 @@ public class IncreaseService {
         }
 
         @Override
-        public void doUpdate(@NotNull JSONArray dataArr) {
+        public void doUpdate(int ruleCode, @NotNull JSONArray dataArr) {
             for (Object o : dataArr) {
                 JSONObject obj = (JSONObject) o;
                 PhotoPhoto photo = obj.toJavaObject(PhotoPhoto.class);
@@ -191,7 +219,7 @@ public class IncreaseService {
         }
 
         @Override
-        public void doDelete(@NotNull JSONArray dataArr) {
+        public void doDelete(int ruleCode, @NotNull JSONArray dataArr) {
             List<Integer> IDs = new ArrayList<>();
             for (Object o : dataArr) {
                 Integer ID = (Integer) o;
@@ -201,9 +229,14 @@ public class IncreaseService {
         }
     }
 
-    private class LabelOperateCallback implements DoOperateCallback {
+    private class OperateCallbackLabel implements DoOperateCallback {
         @Override
-        public void doInsert(@NotNull JSONArray dataArr) {
+        public boolean handle(@NotNull JSONObject record) {
+            return false;
+        }
+
+        @Override
+        public void doInsert(int ruleCode, @NotNull JSONArray dataArr) {
             List<PhotoTagPhoto> list = new ArrayList<>();
             for (Object o : dataArr) {
                 JSONObject obj = (JSONObject) o;
@@ -214,7 +247,7 @@ public class IncreaseService {
         }
 
         @Override
-        public void doUpdate(@NotNull JSONArray dataArr) {
+        public void doUpdate(int ruleCode, @NotNull JSONArray dataArr) {
             for (Object o : dataArr) {
                 JSONObject obj = (JSONObject) o;
                 PhotoTagPhoto label = obj.toJavaObject(PhotoTagPhoto.class);
@@ -223,7 +256,7 @@ public class IncreaseService {
         }
 
         @Override
-        public void doDelete(@NotNull JSONArray dataArr) {
+        public void doDelete(int ruleCode, @NotNull JSONArray dataArr) {
             List<Integer> IDs = new ArrayList<>();
             for (Object o : dataArr) {
                 Integer ID = (Integer) o;

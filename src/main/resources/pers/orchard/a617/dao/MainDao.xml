@@ -72,6 +72,26 @@
         <result column="label_date" jdbcType="TIMESTAMP" property="labelDateUpdated"/>
     </resultMap>
 
+    <delete id="dropVersionTable">
+        drop table if exists version;
+    </delete>
+
+    <delete id="dropDeviceTable">
+        drop table if exists device;
+    </delete>
+
+    <delete id="dropFolderTable">
+        drop table if exists photo_folder;
+    </delete>
+
+    <delete id="dropPhotoTable">
+        drop table if exists photo_photo;
+    </delete>
+
+    <delete id="dropLabelTable">
+        drop table if exists photo_label;
+    </delete>
+
     <update id="createDeviceTable">
         CREATE TABLE `device`
         (
@@ -194,13 +214,26 @@
     </insert>
 
     <insert id="initialDevice">
-        insert into device (id, name)
-        VALUES (0, 'system');
+        insert into device (id, name, date_registered, date_visited)
+        VALUES (0, 'system', current_timestamp, current_timestamp)
+        on duplicate key update name            = 'system',
+                                date_registered = current_timestamp,
+                                date_registered = current_timestamp;
     </insert>
 
     <insert id="initialFolder">
-        insert into photo_folder (id, id_parent, id_created_device, id_cover, name_storage, name_display, description)
-        VALUES (0, 0, 0, null, 'root', 'root', '');
+        insert into photo_folder (id, id_parent, id_created_device, id_cover, name_storage, name_display, description,
+                                  date_created, date_updated, count_updated)
+        VALUES (0, 0, 0, null, 'root', 'root', '', current_timestamp, current_timestamp, 0)
+        on duplicate key update id_parent         = 0,
+                                id_created_device = 0,
+                                id_cover          = null,
+                                name_storage='root',
+                                name_display= 'root',
+                                description       = '',
+                                date_created      = current_timestamp,
+                                date_updated      = current_timestamp,
+                                count_updated     = 0;
     </insert>
 
     <insert id="insertSomeDevice" parameterType="list">
@@ -263,6 +296,12 @@
             t.date_updated      = #{dateUpdated},
             t.count_updated     = #{countUpdated}
         WHERE t.id = #{ID}
+    </update>
+
+    <update id="moveFolder">
+        UPDATE photo_folder
+        SET id_parent = 0
+        WHERE id IN (5, 6);
     </update>
 
     <update id="updatePhoto" parameterType="pers.orchard.a617.bean.photo.PhotoPhoto">

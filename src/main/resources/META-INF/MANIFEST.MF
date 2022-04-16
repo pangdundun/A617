@@ -1,24 +1,24 @@
 Manifest-Version: 1.0
 Main-Class: pers.orchard.a617.A617Application
-Class-Path: spring-boot-starter-web-3.0.0-M2.jar jackson-module-paramete
- r-names-2.13.2.jar tomcat-embed-core-10.0.18.jar spring-context-6.0.0-M
- 3.jar thymeleaf-extras-java8time-3.0.4.RELEASE.jar spring-boot-starter-
- jdbc-3.0.0-M2.jar HikariCP-5.0.1.jar spring-boot-starter-3.0.0-M2.jar j
- ackson-databind-2.13.2.jar attoparser-2.0.5.RELEASE.jar snakeyaml-1.30.
- jar slf4j-api-1.7.36.jar spring-webmvc-6.0.0-M3.jar spring-beans-6.0.0-
- M3.jar mybatis-spring-2.0.7.jar jackson-datatype-jsr310-2.13.2.jar spri
- ng-boot-autoconfigure-3.0.0-M2.jar mybatis-spring-boot-autoconfigure-2.
- 2.2.jar logback-core-1.2.11.jar spring-aop-6.0.0-M3.jar spring-expressi
- on-6.0.0-M3.jar spring-tx-6.0.0-M3.jar logback-classic-1.2.11.jar mybat
- is-3.5.9.jar log4j-to-slf4j-2.17.2.jar tomcat-embed-websocket-10.0.18.j
- ar jakarta.annotation-api-2.0.0.jar jul-to-slf4j-1.7.36.jar spring-core
- -6.0.0-M3.jar log4j-api-2.17.2.jar tomcat-embed-el-10.0.18.jar spring-b
- oot-starter-json-3.0.0-M2.jar mysql-connector-java-8.0.28.jar thymeleaf
- -spring6-3.1.0.M1.jar unbescape-1.1.6.RELEASE.jar jackson-datatype-jdk8
- -2.13.2.jar thymeleaf-3.1.0.M1.jar annotations-23.0.0.jar spring-jdbc-6
- .0.0-M3.jar spring-jcl-6.0.0-M3.jar spring-boot-starter-tomcat-3.0.0-M2
- .jar spring-web-6.0.0-M3.jar jackson-annotations-2.13.2.jar mybatis-spr
- ing-boot-starter-2.2.2.jar jackson-core-2.13.2.jar spring-boot-starter-
- thymeleaf-3.0.0-M2.jar spring-boot-starter-logging-3.0.0-M2.jar spring-
- boot-3.0.0-M2.jar
+Class-Path: jackson-databind-2.13.2.jar spring-beans-6.0.0-M3.jar spring
+ -boot-starter-thymeleaf-3.0.0-M2.jar jackson-core-2.13.2.jar spring-jdb
+ c-6.0.0-M3.jar unbescape-1.1.6.RELEASE.jar mybatis-spring-2.0.7.jar log
+ back-core-1.2.11.jar spring-aop-6.0.0-M3.jar jackson-annotations-2.13.2
+ .jar jakarta.annotation-api-2.0.0.jar spring-boot-starter-jdbc-3.0.0-M2
+ .jar spring-boot-starter-logging-3.0.0-M2.jar spring-boot-starter-json-
+ 3.0.0-M2.jar annotations-23.0.0.jar log4j-to-slf4j-2.17.2.jar spring-we
+ b-6.0.0-M3.jar tomcat-embed-core-10.0.18.jar log4j-api-2.17.2.jar sprin
+ g-boot-starter-3.0.0-M2.jar HikariCP-5.0.1.jar fastjson-1.2.80.jar spri
+ ng-boot-3.0.0-M2.jar spring-tx-6.0.0-M3.jar thymeleaf-spring6-3.1.0.M1.
+ jar thymeleaf-3.1.0.M1.jar spring-webmvc-6.0.0-M3.jar spring-expression
+ -6.0.0-M3.jar jul-to-slf4j-1.7.36.jar spring-boot-autoconfigure-3.0.0-M
+ 2.jar logback-classic-1.2.11.jar mysql-connector-java-8.0.28.jar slf4j-
+ api-1.7.36.jar mybatis-spring-boot-autoconfigure-2.2.2.jar spring-boot-
+ starter-tomcat-3.0.0-M2.jar mybatis-spring-boot-starter-2.2.2.jar sprin
+ g-jcl-6.0.0-M3.jar thymeleaf-extras-java8time-3.0.4.RELEASE.jar snakeya
+ ml-1.30.jar lombok-1.18.22.jar jackson-datatype-jsr310-2.13.2.jar tomca
+ t-embed-el-10.0.18.jar jackson-datatype-jdk8-2.13.2.jar spring-context-
+ 6.0.0-M3.jar mybatis-3.5.9.jar spring-boot-starter-web-3.0.0-M2.jar spr
+ ing-core-6.0.0-M3.jar jackson-module-parameter-names-2.13.2.jar tomcat-
+ embed-websocket-10.0.18.jar attoparser-2.0.5.RELEASE.jar
 

@@ -13,27 +13,37 @@ public class TestService {
         this.dao = dao;
     }
 
-    public void createAllTable() {
+    public void recreateAllTable() {
+        dao.closeForeignCheck();
+
+        dao.dropVersionTable();
+        dao.dropDeviceTable();
+        dao.dropFolderTable();
+        dao.dropPhotoTable();
+        dao.dropLabelTable();
+
         dao.createVersionTable();
         dao.createDeviceTable();
         dao.createFolderTable();
         dao.createPhotoTable();
         dao.createLabelTable();
+
+        dao.openForeignCheck();
     }
 
-    public void clearAllTable() {
+    public void initialAllTable() {
         dao.closeForeignCheck();
 
         dao.clearVersion();
+        dao.clearDevice();
+        dao.clearFolder();
         dao.clearPhoto();
         dao.clearLabel();
-        dao.clearFolder();
-        dao.clearDevice();
 
         dao.openForeignCheck();
 
         dao.initialVersion();
-//        dao.initialDevice();
-//        dao.initialFolder();
+        dao.initialDevice();
+        dao.initialFolder();
     }
 }
