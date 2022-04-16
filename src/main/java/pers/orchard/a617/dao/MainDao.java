@@ -42,37 +42,61 @@ public interface MainDao {
 
     Version selectAllVersion();
 
-    void initialVersion();
+    void versionInitial();
 
-    void initialDevice();
+    void deviceInitial();
 
-    void initialFolder();
+    void folderInitial();
 
-    int insertSomeDevice(List<Device> list);
+    int deviceInsertOne(Device device);
 
-    int insertSomeFolder(List<PhotoFolder> list);
+    int deviceInsertSome(List<Device> list);
 
-    int insertSomePhoto(List<PhotoPhoto> list);
+    int folderInsertOne(PhotoFolder folder);
 
-    int insertSomeLabel(List<PhotoTagPhoto> list);
+    int folderInsertSome(List<PhotoFolder> list);
 
-    int updateDevice(Device device);
+    int photoInsertOne(PhotoPhoto photo);
 
-    int updateFolder(PhotoFolder folder);
+    int photoInsertSome(List<PhotoPhoto> list);
 
-    int moveFolder(List<Integer> list);
+    int labelInsertOne(PhotoTagPhoto label);
 
-    int updatePhoto(PhotoPhoto photo);
+    int labelInsertSome(List<PhotoTagPhoto> list);
+
+    int deviceUpdate(Device device);
+
+    int folderUpdate(PhotoFolder folder);
+
+    int folderMove(int parentID, int[] IDs);
+
+    void folderRename(int ID, String nameDisplay);
+
+    void folderUpdateDescription(int ID, String nameDisplay);
+
+    int photoUpdate(PhotoPhoto photo);
+
+    void photoMove(int IDFolder, int[] IDs);
+
+    void photoRename(int ID, String nameDisplay);
+
+    void photoUpdateDescription(int ID, String description);
+
+    void photoUpdateLabels(int ID, String IDs, String names);
+
+    void photoUpdateMD5(int ID, String MD5);
 
     int updateLabel(PhotoTagPhoto label);
 
-    int deleteSomeDevice(List<Integer> IDs);
+    void labelRename(int ID, String name);
 
-    int deleteSomeFolder(List<Integer> IDs);
+    int deleteSomeDevice(int[] IDs);
 
-    int deleteSomePhoto(List<Integer> IDs);
+    int deleteSomeFolder(int[] IDs);
 
-    int deleteSomeLabel(List<Integer> IDs);
+    int deleteSomePhoto(int[] IDs);
+
+    int deleteSomeLabel(int[] IDs);
 
     void clearVersion();
 

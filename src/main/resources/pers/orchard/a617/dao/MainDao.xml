@@ -203,7 +203,7 @@
           COLLATE = utf8mb4_0900_ai_ci;
     </update>
 
-    <insert id="initialVersion">
+    <insert id="versionInitial">
         insert into version (name, version)
         VALUES ('device', 1),
                ('folder', 1),
@@ -213,7 +213,7 @@
                                 version      = version + 1;
     </insert>
 
-    <insert id="initialDevice">
+    <insert id="deviceInitial">
         insert into device (id, name, date_registered, date_visited)
         VALUES (0, 'system', current_timestamp, current_timestamp)
         on duplicate key update name            = 'system',
@@ -221,7 +221,7 @@
                                 date_registered = current_timestamp;
     </insert>
 
-    <insert id="initialFolder">
+    <insert id="folderInitial">
         insert into photo_folder (id, id_parent, id_created_device, id_cover, name_storage, name_display, description,
                                   date_created, date_updated, count_updated)
         VALUES (0, 0, 0, null, 'root', 'root', '', current_timestamp, current_timestamp, 0)
@@ -236,15 +236,28 @@
                                 count_updated     = 0;
     </insert>
 
-    <insert id="insertSomeDevice" parameterType="list">
+    <insert id="deviceInsertOne" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        insert into device (id, name, date_registered, date_visited)
+        values (#{device.ID}, #{device.name}, #{device.dateRegistered}, #{device.dateVisited})
+    </insert>
+
+    <insert id="deviceInsertSome" parameterType="photoFolder" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
         insert into device (id, name, date_registered, date_visited)
         values
-        <foreach collection="list" item="device" separator=", ">
+        <foreach collection="list" item="folder" separator=", ">
             (#{device.ID}, #{device.name}, #{device.dateRegistered}, #{device.dateVisited})
         </foreach>
     </insert>
 
-    <insert id="insertSomeFolder" parameterType="list">
+    <insert id="folderInsertOne" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        insert into photo_folder (id, id_parent, id_created_device, id_cover, name_storage, name_display, description,
+                                  date_created, date_updated, count_updated)
+        VALUES (#{folder.ID}, #{folder.IDParent}, #{folder.IDCreatedDevice}, #{folder.IDCover}, #{folder.nameStorage},
+                #{folder.nameDisplay}, #{folder.description}, #{folder.dateCreated}, #{folder.dateUpdated},
+                #{folder.countUpdated})
+    </insert>
+
+    <insert id="folderInsertSome" parameterType="list" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
         insert into photo_folder (id, id_parent, id_created_device, id_cover, name_storage, name_display, description,
         date_created, date_updated, count_updated)
         VALUES
@@ -255,7 +268,26 @@
         </foreach>
     </insert>
 
-    <insert id="insertSomePhoto" parameterType="list">
+    <insert id="photoInsertOne" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        insert into photo_photo (id, id_folder, ids_tag, id_register_device, ids_storage_device, name_display,
+                                 name_storage,
+                                 name_register, name_folder, names_tag, names_storage_device, file_size, width, height,
+                                 mime_type, latitude, longitude, orientation, date_taken, description, md5,
+                                 presence_local_full,
+                                 presence_local_thumb, presence_cloud_thumb, path_local_full, path_local_thumb,
+                                 date_registered,
+                                 date_updated, count_updated)
+        VALUES (#{photo.ID}, #{photo.IDFolder}, #{photo.IDsTagTransfer}, #{photo.IDRegisterDevice},
+                #{photo.IDsStorageDeviceTransfer}, #{photo.nameDisplay}, #{photo.nameStorage}, #{photo.nameRegister},
+                #{photo.nameFolder}, #{photo.namesTagTransfer}, #{photo.namesStorageDeviceTransfer}, #{photo.fileSize},
+                #{photo.width}, #{photo.height}, #{photo.mimeType}, #{photo.latitude}, #{photo.longitude},
+                #{photo.orientation}, #{photo.dateTaken}, #{photo.description}, #{photo.MD5},
+                #{photo.presenceLocalFull}, #{photo.presenceLocalThumb}, #{photo.presenceCloudThumb},
+                #{photo.pathLocalFull}, #{photo.pathLocalThumb}, #{photo.dateRegistered}, #{photo.dateRegistered},
+                #{photo.countUpdated})
+    </insert>
+
+    <insert id="photoInsertSome" parameterType="list" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
         insert into photo_photo (id, id_folder, ids_tag, id_register_device, ids_storage_device, name_display,
         name_storage,
         name_register, name_folder, names_tag, names_storage_device, file_size, width, height,
@@ -268,7 +300,12 @@
         </foreach>
     </insert>
 
-    <insert id="insertSomeLabel" parameterType="list">
+    <insert id="labelInsertOne" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        insert into photo_label (id, name, date_created, date_updated, count_updated)
+        values (#{label.ID}, #{label.name}, #{label.dateCreated}, #{label.dateUpdated}, #{label.countUpdated})
+    </insert>
+
+    <insert id="labelInsertSome" parameterType="list" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
         insert into photo_label (id, name, date_created, date_updated, count_updated)
         values
         <foreach collection="list" item="label" separator=", ">
@@ -276,7 +313,7 @@
         </foreach>
     </insert>
 
-    <update id="updateDevice" parameterType="pers.orchard.a617.bean.Device">
+    <update id="deviceUpdate" parameterType="pers.orchard.a617.bean.Device">
         UPDATE device t
         SET t.name            = #{name},
             t.date_registered = #{dateRegistered},
@@ -284,7 +321,7 @@
         WHERE t.id = #{ID};
     </update>
 
-    <update id="updateFolder" parameterType="pers.orchard.a617.bean.photo.PhotoFolder">
+    <update id="folderUpdate" parameterType="pers.orchard.a617.bean.photo.PhotoFolder">
         UPDATE photo_folder t
         SET t.id_parent         = #{IDParent},
             t.id_created_device = #{IDCreatedDevice},
@@ -298,13 +335,28 @@
         WHERE t.id = #{ID}
     </update>
 
-    <update id="moveFolder">
+    <update id="folderMove" parameterType="map">
         UPDATE photo_folder
-        SET id_parent = 0
-        WHERE id IN (5, 6);
+        SET id_parent = #{parentID}
+        WHERE id IN
+        <foreach collection="IDs" item="ID" open="(" close=")" separator=", ">
+            #{ID}
+        </foreach>
     </update>
 
-    <update id="updatePhoto" parameterType="pers.orchard.a617.bean.photo.PhotoPhoto">
+    <update id="folderRename" parameterType="map">
+        UPDATE `photo_folder`
+        SET `name_display` = #{nameDisplay}
+        WHERE `id` = #{ID}
+    </update>
+
+    <update id="folderUpdateDescription">
+        UPDATE `photo_folder`
+        SET `description` = #{nameDisplay}
+        WHERE `id` = #{ID}
+    </update>
+
+    <update id="photoUpdate" parameterType="pers.orchard.a617.bean.photo.PhotoPhoto">
         UPDATE photo_photo t
         SET t.id_folder            = #{IDFolder},
             t.ids_tag              = #{IDsTagTransfer},
@@ -337,6 +389,40 @@
         WHERE t.id = #{ID};
     </update>
 
+    <update id="photoMove" parameterType="map">
+        UPDATE photo_photo
+        SET id_folder = #{IDFolder}
+        WHERE id IN
+        <foreach collection="IDs" item="ID" open="(" close=")" separator=", ">
+            #{ID}
+        </foreach>
+    </update>
+
+    <update id="photoRename" parameterType="map">
+        UPDATE `photo_photo`
+        SET `name_display` = #{nameDisplay}
+        WHERE `id` = #{ID}
+    </update>
+
+    <update id="photoUpdateDescription" parameterType="map">
+        UPDATE `photo_photo`
+        SET `description` = #{description}
+        WHERE `id` = #{ID}
+    </update>
+
+    <update id="photoUpdateLabels" parameterType="map">
+        UPDATE photo_photo
+        SET ids_tag  = #{IDs},
+            names_tag= #{names}
+        WHERE id = #{ID}
+    </update>
+
+    <update id="photoUpdateMD5" parameterType="map">
+        UPDATE photo_photo
+        SET md5 = #{MD5}
+        WHERE id = #{ID}
+    </update>
+
     <update id="updateLabel" parameterType="pers.orchard.a617.bean.photo.PhotoTagPhoto">
         UPDATE photo_label t
         SET t.name          = #{name},
@@ -344,6 +430,12 @@
             t.date_updated  = #{dateUpdated},
             t.count_updated = #{countUpdated}
         WHERE t.id = #{ID};
+    </update>
+
+    <update id="labelRename" parameterType="map">
+        UPDATE `photo_label`
+        SET `name` = #{name}
+        WHERE `id` = #{ID}
     </update>
 
     <delete id="deleteSomeDevice" parameterType="list">

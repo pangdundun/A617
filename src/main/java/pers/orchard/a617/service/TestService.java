@@ -42,8 +42,8 @@ public class TestService {
 
         dao.openForeignCheck();
 
-        dao.initialVersion();
-        dao.initialDevice();
-        dao.initialFolder();
+        dao.versionInitial();
+        dao.deviceInitial();
+        dao.folderInitial();
     }
 }

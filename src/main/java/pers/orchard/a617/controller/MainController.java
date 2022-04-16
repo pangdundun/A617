@@ -61,6 +61,59 @@ public class MainController {
         return calibrationService.calibration(version);
     }
 
+
+    /**
+     * Send @version 20220416-232228
+     * <p>
+     * Receive @version 20220416-234625
+     */
+    @RequestMapping("increase")
+    @ResponseBody
+    private String increase(@NotNull @RequestBody String json) {
+        JSONObject resultObj = new JSONObject();
+        long startTime = Calendar.getInstance().getTime().getTime();
+
+        JSONObject parse = JSON.parseObject(json);
+
+        Integer requestCode = parse.getInteger("requestCode");
+        Long requestTime = parse.getLong("requestTime");
+        Integer deviceID = parse.getInteger("deviceID");
+
+        Integer typeCode = parse.getInteger("typeCode");
+        Integer operateCode = parse.getInteger("operateCode");
+        Integer ruleCode = parse.getInteger("ruleCode");
+        JSONObject dataObj = parse.getJSONObject("data");
+
+        boolean error = requestCode == null || requestTime == null || deviceID == null || typeCode == null || operateCode == null || ruleCode == null || dataObj == null;
+
+        if (!error) {
+            if (requestCode == RequestCode.UPLOAD_INCREASE) {
+                IncreaseService.Data data = dataObj.toJavaObject(IncreaseService.Data.class);
+
+                JSONObject object = increaseService.responseRecords(typeCode, operateCode, ruleCode, data);
+
+                Integer data_int1 = object.getInteger("data_int1");
+                resultObj.put("data_int1", data_int1);
+
+                JSONDataHelper.setResOK(resultObj);
+            }
+
+            resultObj.put("requestTime", requestTime);
+            resultObj.put("deviceID", deviceID);
+
+        } else {
+            JSONDataHelper.setResDataIncorrect(resultObj);
+        }
+
+        JSONDataHelper.setTimeConsuming(resultObj, startTime);
+        return resultObj.toJSONString();
+    }
+
+    /**
+     * Send @version 20220416-232923
+     * <p>
+     * Receive @version 20220416-234625
+     */
     @RequestMapping("fullPull")
     @ResponseBody
     private String fullPull(@NotNull @RequestBody String json) {
@@ -69,105 +122,99 @@ public class MainController {
 
         JSONObject parse = JSON.parseObject(json);
         Integer requestCode = parse.getInteger("requestCode");
-        Integer type = parse.getInteger("type");
+        Long requestTime = parse.getLong("requestTime");
         Integer deviceID = parse.getInteger("deviceID");
+        Integer typeCode = parse.getInteger("typeCode");
 
-        boolean error = false;
-
-        if (deviceID == null) {
-            error = true;
-        } else {
-            resultObj.put("deviceID", deviceID);
-        }
-
-        if (requestCode != null && requestCode == RequestCode.DOWNLOAD_ALL_DATA) {
-            if (type == null) {
-                error = true;
-            }
-        } else {
-            error = true;
-        }
+        boolean error = requestCode == null || requestTime == null || deviceID == null || typeCode == null;
 
         if (!error) {
-            JSONArray record = fullPullService.fullPull(type);
-            resultObj.put("record", record);
+            if (requestCode == RequestCode.DOWNLOAD_ALL_DATA) {
+                Version cloudVersion = calibrationService.getCloudVersion();
+                resultObj.put("version", cloudVersion);
 
-            Version cloudVersion = calibrationService.getCloudVersion();
-            resultObj.put("version", cloudVersion);
+                JSONArray record = fullPullService.fullPull(typeCode);
+                resultObj.put("data", record);
 
-            JSONDataHelper.setResOK(resultObj);
+                JSONDataHelper.setResOK(resultObj);
+            }
+
+            resultObj.put("requestTime", requestTime);
+            resultObj.put("deviceID", deviceID);
 
         } else {
             JSONDataHelper.setResDataIncorrect(resultObj);
         }
 
-        JSONDataHelper.setFinishTimeAndTimeConsuming(resultObj, startTime);
+        JSONDataHelper.setTimeConsuming(resultObj, startTime);
         return resultObj.toJSONString();
     }
 
-    @RequestMapping("increase")
+    /**
+     * Send @version 20220417-000532
+     * <p>
+     * Receive @version 20220417-000324
+     */
+    @RequestMapping("recreateAllTable")
     @ResponseBody
-    private String increase(@NotNull @RequestBody String json) {
+    private String recreateAllTable(@NotNull @RequestBody String json) {
         JSONObject resultObj = new JSONObject();
         long startTime = Calendar.getInstance().getTime().getTime();
 
         JSONObject parse = JSON.parseObject(json);
+
         Integer requestCode = parse.getInteger("requestCode");
         Long requestTime = parse.getLong("requestTime");
         Integer deviceID = parse.getInteger("deviceID");
-        JSONArray records = parse.getJSONArray("record");
 
-        boolean error = requestCode == null;
-        error |= requestTime == null;
-        error |= deviceID == null;
-        error |= records == null || records.size() == 0;
+        boolean error = requestCode == null || requestTime == null || deviceID == null;
 
         if (!error) {
-            JSONObject object = increaseService.responseRecords(records);
+            if (requestCode == RequestCode.RECREATE_ALL_TABLE) {
+                testService.recreateAllTable();
 
-            JSONArray result = object.getJSONArray("result");
-            int resultErrorCount = object.getIntValue("resultErrorCount");
-
-            resultObj.put("result", result);
-            resultObj.put("resultErrorCount", resultErrorCount);
-
-            if (resultErrorCount == 0) {
                 JSONDataHelper.setResOK(resultObj);
-            } else {
-                JSONDataHelper.setResServerDBError(resultObj);
             }
 
+            resultObj.put("requestTime", requestTime);
             resultObj.put("deviceID", deviceID);
-
-        } else {
-            JSONDataHelper.setResDataIncorrect(resultObj);
         }
 
-        JSONDataHelper.setFinishTimeAndTimeConsuming(resultObj, startTime);
+        JSONDataHelper.setTimeConsuming(resultObj, startTime);
         return resultObj.toJSONString();
     }
 
-    @RequestMapping("createAllTable")
+    /**
+     * Send @version 20220417-000532
+     * <p>
+     * Receive @version 20220417-000324
+     */
+    @RequestMapping("reinitializeAllTable")
     @ResponseBody
-    private String create() {
+    private String reinitializeAllTable(@NotNull @RequestBody String json) {
         JSONObject resultObj = new JSONObject();
         long startTime = Calendar.getInstance().getTime().getTime();
 
-        testService.recreateAllTable();
+        JSONObject parse = JSON.parseObject(json);
 
-        JSONDataHelper.setFinishTimeAndTimeConsuming(resultObj, startTime);
-        return resultObj.toJSONString();
-    }
+        Integer requestCode = parse.getInteger("requestCode");
+        Long requestTime = parse.getLong("requestTime");
+        Integer deviceID = parse.getInteger("deviceID");
 
-    @RequestMapping("clearAllTable")
-    @ResponseBody
-    private String clear() {
-        JSONObject resultObj = new JSONObject();
-        long startTime = Calendar.getInstance().getTime().getTime();
+        boolean error = requestCode == null || requestTime == null || deviceID == null;
 
-        testService.initialAllTable();
+        if (!error) {
+            if (requestCode == RequestCode.RECREATE_ALL_TABLE) {
+                testService.initialAllTable();
 
-        JSONDataHelper.setFinishTimeAndTimeConsuming(resultObj, startTime);
+                JSONDataHelper.setResOK(resultObj);
+            }
+
+            resultObj.put("requestTime", requestTime);
+            resultObj.put("deviceID", deviceID);
+        }
+
+        JSONDataHelper.setTimeConsuming(resultObj, startTime);
         return resultObj.toJSONString();
     }
 
