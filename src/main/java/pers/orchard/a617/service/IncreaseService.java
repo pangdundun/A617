@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import pers.orchard.a617.bean.Device;
 import pers.orchard.a617.bean.photo.PhotoFolder;
@@ -16,6 +17,7 @@ import pers.orchard.a617.controller.JSONDataHelper;
 import pers.orchard.a617.dao.MainDao;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -53,8 +55,8 @@ public class IncreaseService {
             }
             case OperateCode.INSERT -> {
                 if (ruleCode == RuleCode.INSERT_ONE) {
-                    Object obj = data.data1;
-                    Device device = (Device) obj;
+                    JSONObject obj = (JSONObject) data.data1;
+                    Device device = obj.toJavaObject(Device.class);
 
                     dao.deviceInsertOne(device);
 
@@ -78,8 +80,8 @@ public class IncreaseService {
             }
             case OperateCode.INSERT -> {
                 if (ruleCode == RuleCode.INSERT_ONE) {
-                    Object obj = data.data1;
-                    PhotoFolder folder = (PhotoFolder) obj;
+                    JSONObject obj = (JSONObject) data.data1;
+                    PhotoFolder folder = obj.toJavaObject(PhotoFolder.class);
 
                     dao.folderInsertOne(folder);
 
@@ -110,10 +112,10 @@ public class IncreaseService {
                 }
             }
             case OperateCode.DELETE -> {
-                if (ruleCode == RuleCode.DELETE_BY_ID) {
-                    int ID = data.int1;
+                if (ruleCode == RuleCode.DELETE_BY_IDS) {
+                    int[] IDs = data.intArr;
 
-                    dao.deleteSomeFolder(new int[]{ID});
+                    dao.deleteSomeFolder(IDs);
                 }
             }
         }
@@ -234,7 +236,19 @@ public class IncreaseService {
 
         public int[] intArr;
         public String[] stringArr;
-
         public Object[] dataArr;
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "Data{" +
+                    "int1=" + int1 +
+                    ", string1='" + string1 + '\'' +
+                    ", data1=" + data1 +
+                    ", intArr=" + Arrays.toString(intArr) +
+                    ", stringArr=" + Arrays.toString(stringArr) +
+                    ", dataArr=" + Arrays.toString(dataArr) +
+                    '}';
+        }
     }
 }

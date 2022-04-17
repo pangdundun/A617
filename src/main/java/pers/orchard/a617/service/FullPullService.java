@@ -27,93 +27,26 @@ public class FullPullService {
     }
 
     public JSONArray fullPull(int type) {
-        JSONArray array = new JSONArray();
+        JSONArray dataArr = new JSONArray();
 
-        if ((type & 1) == 1) {
-            JSONObject record = getAllDeviceRecord();
-            array.add(record);
+        switch (type) {
+            case TypeCode.DEVICE -> {
+                List<Device> devices = dao.selectAllDevice();
+                dataArr.addAll(devices);
+            }
+            case TypeCode.FOLDER -> {
+                List<PhotoFolder> folders = dao.selectAllFolder();
+                dataArr.addAll(folders);
+            }
+            case TypeCode.PHOTO -> {
+                List<PhotoPhoto> photos = dao.selectAllPhoto();
+                dataArr.addAll(photos);
+            }
+            case TypeCode.LABEL -> {
+                List<PhotoTagPhoto> labels = dao.selectAllLabel();
+                dataArr.addAll(labels);
+            }
         }
-        type >>= 1;
-        if ((type & 1) == 1) {
-            JSONObject record = getAllFolderRecord();
-            array.add(record);
-        }
-        type >>= 1;
-        if ((type & 1) == 1) {
-            JSONObject record = getAllPhotoRecord();
-            array.add(record);
-        }
-        type >>= 1;
-        if ((type & 1) == 1) {
-            JSONObject record = getAllLabelRecord();
-            array.add(record);
-        }
-
-        return array;
-    }
-
-    private @NotNull JSONObject getAllDeviceRecord() {
-        JSONObject object = new JSONObject();
-
-        object.put("typeCode", TypeCode.DEVICE);
-        object.put("ruleCode", RuleCode.COMMON_OVERWRITE);
-
-        JSONArray array = new JSONArray();
-        List<Device> devices = dao.selectAllDevice();
-        array.addAll(devices);
-        object.put("data", array);
-
-        return object;
-    }
-
-    private @NotNull JSONObject getAllFolderRecord() {
-        JSONObject object = new JSONObject();
-
-        object.put("typeCode", TypeCode.FOLDER);
-        object.put("ruleCode", RuleCode.COMMON_OVERWRITE);
-
-        JSONArray array = new JSONArray();
-        List<PhotoFolder> folders = dao.selectAllFolder();
-        array.addAll(folders);
-        object.put("data", array);
-
-        return object;
-    }
-
-    private @NotNull JSONObject getAllPhotoRecord() {
-        JSONObject object = new JSONObject();
-
-        object.put("typeCode", TypeCode.PHOTO);
-        object.put("ruleCode", RuleCode.COMMON_OVERWRITE);
-
-        JSONArray array = new JSONArray();
-        List<PhotoPhoto> photos = dao.selectAllPhoto();
-        array.addAll(photos);
-
-        for (Object o : array) {
-            JSONObject obj = (JSONObject) o;
-            obj.remove("iDsStorageDeviceTransfer");
-            obj.remove("iDsTagTransfer");
-            obj.remove("namesStorageDeviceTransfer");
-            obj.remove("namesTagTransfer");
-        }
-
-        object.put("data", array);
-
-        return object;
-    }
-
-    private @NotNull JSONObject getAllLabelRecord() {
-        JSONObject object = new JSONObject();
-
-        object.put("typeCode", TypeCode.LABEL);
-        object.put("ruleCode", RuleCode.COMMON_OVERWRITE);
-
-        JSONArray array = new JSONArray();
-        List<PhotoTagPhoto> labels = dao.selectAllLabel();
-        array.addAll(labels);
-        object.put("data", array);
-
-        return object;
+        return dataArr;
     }
 }

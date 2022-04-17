@@ -95,13 +95,14 @@
     <update id="createDeviceTable">
         CREATE TABLE `device`
         (
-            `id`              int  NOT NULL,
+            `id`              int  NOT NULL AUTO_INCREMENT,
             `name`            text NOT NULL,
             `date_registered` datetime DEFAULT CURRENT_TIMESTAMP,
             `date_visited`    datetime DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (`id`),
             UNIQUE KEY `device_id_uindex` (`id`)
         ) ENGINE = InnoDB
+          AUTO_INCREMENT = 0
           DEFAULT CHARSET = utf8mb4
           COLLATE = utf8mb4_0900_ai_ci;
     </update>
@@ -109,25 +110,26 @@
     <update id="createFolderTable">
         CREATE TABLE `photo_folder`
         (
-            `id`                int      NOT NULL,
-            `id_parent`         int      NOT NULL DEFAULT '0',
-            `id_created_device` int      NOT NULL,
-            `id_cover`          int               DEFAULT NULL,
-            `name_storage`      text     NOT NULL,
-            `name_display`      text     NOT NULL,
+            `id`                int  NOT NULL AUTO_INCREMENT,
+            `id_parent`         int  NOT NULL DEFAULT '0',
+            `id_created_device` int  NOT NULL,
+            `id_cover`          int           DEFAULT NULL,
+            `name_storage`      text NOT NULL,
+            `name_display`      text NOT NULL,
             `description`       text,
-            `date_created`      datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            `date_updated`      datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            `count_updated`     int      NOT NULL DEFAULT '0',
+            `date_created`      datetime      DEFAULT CURRENT_TIMESTAMP,
+            `date_updated`      datetime      DEFAULT CURRENT_TIMESTAMP,
+            `count_updated`     int           DEFAULT '0',
             PRIMARY KEY (`id`),
             UNIQUE KEY `photo_folder_id_uindex` (`id`),
             KEY `id_parent` (`id_parent`),
             KEY `id_created_device` (`id_created_device`),
             KEY `id_cover` (`id_cover`),
-            CONSTRAINT `photo_folder_ibfk_1` FOREIGN KEY (`id_parent`) REFERENCES `photo_folder` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+            CONSTRAINT `photo_folder_ibfk_1` FOREIGN KEY (`id_cover`) REFERENCES `photo_photo` (`id`) ON DELETE SET NULL ON UPDATE RESTRICT,
             CONSTRAINT `photo_folder_ibfk_2` FOREIGN KEY (`id_created_device`) REFERENCES `device` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
-            CONSTRAINT `photo_folder_ibfk_3` FOREIGN KEY (`id_cover`) REFERENCES `photo_photo` (`id`) ON DELETE SET NULL
+            CONSTRAINT `photo_folder_ibfk_3` FOREIGN KEY (`id_parent`) REFERENCES `photo_folder` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
         ) ENGINE = InnoDB
+          AUTO_INCREMENT = 0
           DEFAULT CHARSET = utf8mb4
           COLLATE = utf8mb4_0900_ai_ci;
     </update>
@@ -135,35 +137,35 @@
     <update id="createPhotoTable">
         CREATE TABLE `photo_photo`
         (
-            `id`                   int      NOT NULL,
-            `id_folder`            int      NOT NULL,
-            `ids_tag`              json     NOT NULL,
-            `id_register_device`   int      NOT NULL,
-            `ids_storage_device`   json     NOT NULL,
+            `id`                   int  NOT NULL AUTO_INCREMENT,
+            `id_folder`            int  NOT NULL,
+            `ids_tag`              json NOT NULL,
+            `id_register_device`   int  NOT NULL,
+            `ids_storage_device`   json NOT NULL,
             `name_display`         text,
-            `name_storage`         text     NOT NULL,
-            `name_register`        text     NOT NULL,
-            `name_folder`          text     NOT NULL,
-            `names_tag`            json     NOT NULL,
-            `names_storage_device` json     NOT NULL,
-            `file_size`            int               DEFAULT NULL,
-            `width`                int               DEFAULT NULL,
-            `height`               int               DEFAULT NULL,
+            `name_storage`         text NOT NULL,
+            `name_register`        text NOT NULL,
+            `name_folder`          text NOT NULL,
+            `names_tag`            json NOT NULL,
+            `names_storage_device` json NOT NULL,
+            `file_size`            int        DEFAULT NULL,
+            `width`                int        DEFAULT NULL,
+            `height`               int        DEFAULT NULL,
             `mime_type`            text,
             `latitude`             text,
             `longitude`            text,
-            `orientation`          int               DEFAULT NULL,
-            `date_taken`           datetime          DEFAULT CURRENT_TIMESTAMP,
+            `orientation`          int        DEFAULT NULL,
+            `date_taken`           datetime   DEFAULT CURRENT_TIMESTAMP,
             `description`          text,
-            `md5`                  text     NOT NULL,
-            `presence_local_full`  tinyint(1)        DEFAULT '1',
-            `presence_local_thumb` tinyint(1)        DEFAULT '0',
-            `presence_cloud_thumb` tinyint(1)        DEFAULT '0',
+            `md5`                  text NOT NULL,
+            `presence_local_full`  tinyint(1) DEFAULT '1',
+            `presence_local_thumb` tinyint(1) DEFAULT '0',
+            `presence_cloud_thumb` tinyint(1) DEFAULT '0',
             `path_local_full`      text,
             `path_local_thumb`     text,
-            `date_registered`      datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            `date_updated`         datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            `count_updated`        int      NOT NULL DEFAULT '0',
+            `date_registered`      datetime   DEFAULT CURRENT_TIMESTAMP,
+            `date_updated`         datetime   DEFAULT CURRENT_TIMESTAMP,
+            `count_updated`        int        DEFAULT '0',
             PRIMARY KEY (`id`),
             UNIQUE KEY `photo_photo_id_uindex` (`id`),
             KEY `id_folder` (`id_folder`),
@@ -178,11 +180,11 @@
     <update id="createLabelTable">
         CREATE TABLE `photo_label`
         (
-            `id`            int          NOT NULL,
+            `id`            int          NOT NULL AUTO_INCREMENT,
             `name`          varchar(256) NOT NULL,
-            `date_created`  datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            `date_updated`  datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            `count_updated` int          NOT NULL DEFAULT '0',
+            `date_created`  datetime DEFAULT CURRENT_TIMESTAMP,
+            `date_updated`  datetime DEFAULT CURRENT_TIMESTAMP,
+            `count_updated` int      DEFAULT '0',
             PRIMARY KEY (`id`),
             UNIQUE KEY `photo_label_id_uindex` (`id`),
             UNIQUE KEY `photo_label_name_uindex` (`name`)
@@ -236,39 +238,40 @@
                                 count_updated     = 0;
     </insert>
 
-    <insert id="deviceInsertOne" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+    <insert id="deviceInsertOne" useGeneratedKeys="true" keyProperty="ID" keyColumn="id">
         insert into device (id, name, date_registered, date_visited)
-        values (#{device.ID}, #{device.name}, #{device.dateRegistered}, #{device.dateVisited})
+        values (#{ID}, #{name}, #{dateRegistered}, #{dateVisited})
     </insert>
 
-    <insert id="deviceInsertSome" parameterType="photoFolder" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+    <insert id="deviceInsertSome" useGeneratedKeys="true"
+            keyProperty="ID" keyColumn="id">
         insert into device (id, name, date_registered, date_visited)
         values
         <foreach collection="list" item="folder" separator=", ">
-            (#{device.ID}, #{device.name}, #{device.dateRegistered}, #{device.dateVisited})
+            (#{ID}, #{name}, #{dateRegistered}, #{dateVisited})
         </foreach>
     </insert>
 
-    <insert id="folderInsertOne" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+    <insert id="folderInsertOne" useGeneratedKeys="true" keyProperty="ID" keyColumn="id">
         insert into photo_folder (id, id_parent, id_created_device, id_cover, name_storage, name_display, description,
                                   date_created, date_updated, count_updated)
-        VALUES (#{folder.ID}, #{folder.IDParent}, #{folder.IDCreatedDevice}, #{folder.IDCover}, #{folder.nameStorage},
-                #{folder.nameDisplay}, #{folder.description}, #{folder.dateCreated}, #{folder.dateUpdated},
-                #{folder.countUpdated})
+        VALUES (#{ID}, #{IDParent}, #{IDCreatedDevice}, #{IDCover}, #{nameStorage},
+                #{nameDisplay}, #{description}, #{dateCreated}, #{dateUpdated},
+                #{countUpdated})
     </insert>
 
-    <insert id="folderInsertSome" parameterType="list" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+    <insert id="folderInsertSome" useGeneratedKeys="true" keyProperty="ID" keyColumn="id">
         insert into photo_folder (id, id_parent, id_created_device, id_cover, name_storage, name_display, description,
         date_created, date_updated, count_updated)
         VALUES
         <foreach collection="list" item="folder" separator=", ">
-            (#{folder.ID}, #{folder.IDParent}, #{folder.IDCreatedDevice}, #{folder.IDCover}, #{folder.nameStorage},
-            #{folder.nameDisplay}, #{folder.description}, #{folder.dateCreated}, #{folder.dateUpdated},
-            #{folder.countUpdated})
+            (#{ID}, #{IDParent}, #{IDCreatedDevice}, #{IDCover}, #{nameStorage},
+            #{nameDisplay}, #{description}, #{dateCreated}, #{dateUpdated},
+            #{countUpdated})
         </foreach>
     </insert>
 
-    <insert id="photoInsertOne" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+    <insert id="photoInsertOne" useGeneratedKeys="true" keyProperty="ID" keyColumn="id">
         insert into photo_photo (id, id_folder, ids_tag, id_register_device, ids_storage_device, name_display,
                                  name_storage,
                                  name_register, name_folder, names_tag, names_storage_device, file_size, width, height,
@@ -277,17 +280,17 @@
                                  presence_local_thumb, presence_cloud_thumb, path_local_full, path_local_thumb,
                                  date_registered,
                                  date_updated, count_updated)
-        VALUES (#{photo.ID}, #{photo.IDFolder}, #{photo.IDsTagTransfer}, #{photo.IDRegisterDevice},
-                #{photo.IDsStorageDeviceTransfer}, #{photo.nameDisplay}, #{photo.nameStorage}, #{photo.nameRegister},
-                #{photo.nameFolder}, #{photo.namesTagTransfer}, #{photo.namesStorageDeviceTransfer}, #{photo.fileSize},
-                #{photo.width}, #{photo.height}, #{photo.mimeType}, #{photo.latitude}, #{photo.longitude},
-                #{photo.orientation}, #{photo.dateTaken}, #{photo.description}, #{photo.MD5},
-                #{photo.presenceLocalFull}, #{photo.presenceLocalThumb}, #{photo.presenceCloudThumb},
-                #{photo.pathLocalFull}, #{photo.pathLocalThumb}, #{photo.dateRegistered}, #{photo.dateRegistered},
-                #{photo.countUpdated})
+        VALUES (#{ID}, #{IDFolder}, #{IDsTagTransfer}, #{IDRegisterDevice},
+                #{IDsStorageDeviceTransfer}, #{nameDisplay}, #{nameStorage}, #{nameRegister},
+                #{nameFolder}, #{namesTagTransfer}, #{namesStorageDeviceTransfer}, #{fileSize},
+                #{width}, #{height}, #{mimeType}, #{latitude}, #{longitude},
+                #{orientation}, #{dateTaken}, #{description}, #{MD5},
+                #{presenceLocalFull}, #{presenceLocalThumb}, #{presenceCloudThumb},
+                #{pathLocalFull}, #{pathLocalThumb}, #{dateRegistered}, #{dateRegistered},
+                #{countUpdated})
     </insert>
 
-    <insert id="photoInsertSome" parameterType="list" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+    <insert id="photoInsertSome" useGeneratedKeys="true" keyProperty="ID" keyColumn="id">
         insert into photo_photo (id, id_folder, ids_tag, id_register_device, ids_storage_device, name_display,
         name_storage,
         name_register, name_folder, names_tag, names_storage_device, file_size, width, height,
@@ -296,24 +299,24 @@
         date_updated, count_updated)
         VALUES
         <foreach collection="list" item="photo" separator=", ">
-            (#{photo.ID},#{photo.IDFolder},#{photo.IDsTagTransfer},#{photo.IDRegisterDevice},#{photo.IDsStorageDeviceTransfer},#{photo.nameDisplay},#{photo.nameStorage},#{photo.nameRegister},#{photo.nameFolder},#{photo.namesTagTransfer},#{photo.namesStorageDeviceTransfer},#{photo.fileSize},#{photo.width},#{photo.height},#{photo.mimeType},#{photo.latitude},#{photo.longitude},#{photo.orientation},#{photo.dateTaken},#{photo.description},#{photo.MD5},#{photo.presenceLocalFull},#{photo.presenceLocalThumb},#{photo.presenceCloudThumb},#{photo.pathLocalFull},#{photo.pathLocalThumb},#{photo.dateRegistered},#{photo.dateRegistered},#{photo.countUpdated})
+            (#{ID},#{IDFolder},#{IDsTagTransfer},#{IDRegisterDevice},#{IDsStorageDeviceTransfer},#{nameDisplay},#{nameStorage},#{nameRegister},#{nameFolder},#{namesTagTransfer},#{namesStorageDeviceTransfer},#{fileSize},#{width},#{height},#{mimeType},#{latitude},#{longitude},#{orientation},#{dateTaken},#{description},#{MD5},#{presenceLocalFull},#{presenceLocalThumb},#{presenceCloudThumb},#{pathLocalFull},#{pathLocalThumb},#{dateRegistered},#{dateRegistered},#{countUpdated})
         </foreach>
     </insert>
 
-    <insert id="labelInsertOne" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+    <insert id="labelInsertOne" useGeneratedKeys="true" keyProperty="ID" keyColumn="id">
         insert into photo_label (id, name, date_created, date_updated, count_updated)
-        values (#{label.ID}, #{label.name}, #{label.dateCreated}, #{label.dateUpdated}, #{label.countUpdated})
+        values (#{ID}, #{name}, #{dateCreated}, #{dateUpdated}, #{countUpdated})
     </insert>
 
-    <insert id="labelInsertSome" parameterType="list" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+    <insert id="labelInsertSome" useGeneratedKeys="true" keyProperty="ID" keyColumn="id">
         insert into photo_label (id, name, date_created, date_updated, count_updated)
         values
         <foreach collection="list" item="label" separator=", ">
-            (#{label.ID},#{label.name},#{label.dateCreated},#{label.dateUpdated},#{label.countUpdated})
+            (#{ID},#{name},#{dateCreated},#{dateUpdated},#{countUpdated})
         </foreach>
     </insert>
 
-    <update id="deviceUpdate" parameterType="pers.orchard.a617.bean.Device">
+    <update id="deviceUpdate">
         UPDATE device t
         SET t.name            = #{name},
             t.date_registered = #{dateRegistered},
@@ -321,7 +324,7 @@
         WHERE t.id = #{ID};
     </update>
 
-    <update id="folderUpdate" parameterType="pers.orchard.a617.bean.photo.PhotoFolder">
+    <update id="folderUpdate">
         UPDATE photo_folder t
         SET t.id_parent         = #{IDParent},
             t.id_created_device = #{IDCreatedDevice},
@@ -335,7 +338,7 @@
         WHERE t.id = #{ID}
     </update>
 
-    <update id="folderMove" parameterType="map">
+    <update id="folderMove">
         UPDATE photo_folder
         SET id_parent = #{parentID}
         WHERE id IN
@@ -344,7 +347,7 @@
         </foreach>
     </update>
 
-    <update id="folderRename" parameterType="map">
+    <update id="folderRename">
         UPDATE `photo_folder`
         SET `name_display` = #{nameDisplay}
         WHERE `id` = #{ID}
@@ -356,7 +359,7 @@
         WHERE `id` = #{ID}
     </update>
 
-    <update id="photoUpdate" parameterType="pers.orchard.a617.bean.photo.PhotoPhoto">
+    <update id="photoUpdate">
         UPDATE photo_photo t
         SET t.id_folder            = #{IDFolder},
             t.ids_tag              = #{IDsTagTransfer},
@@ -389,7 +392,7 @@
         WHERE t.id = #{ID};
     </update>
 
-    <update id="photoMove" parameterType="map">
+    <update id="photoMove">
         UPDATE photo_photo
         SET id_folder = #{IDFolder}
         WHERE id IN
@@ -398,32 +401,32 @@
         </foreach>
     </update>
 
-    <update id="photoRename" parameterType="map">
+    <update id="photoRename">
         UPDATE `photo_photo`
         SET `name_display` = #{nameDisplay}
         WHERE `id` = #{ID}
     </update>
 
-    <update id="photoUpdateDescription" parameterType="map">
+    <update id="photoUpdateDescription">
         UPDATE `photo_photo`
         SET `description` = #{description}
         WHERE `id` = #{ID}
     </update>
 
-    <update id="photoUpdateLabels" parameterType="map">
+    <update id="photoUpdateLabels">
         UPDATE photo_photo
         SET ids_tag  = #{IDs},
             names_tag= #{names}
         WHERE id = #{ID}
     </update>
 
-    <update id="photoUpdateMD5" parameterType="map">
+    <update id="photoUpdateMD5">
         UPDATE photo_photo
         SET md5 = #{MD5}
         WHERE id = #{ID}
     </update>
 
-    <update id="updateLabel" parameterType="pers.orchard.a617.bean.photo.PhotoTagPhoto">
+    <update id="updateLabel">
         UPDATE photo_label t
         SET t.name          = #{name},
             t.date_created  = #{dateCreated},
@@ -432,13 +435,13 @@
         WHERE t.id = #{ID};
     </update>
 
-    <update id="labelRename" parameterType="map">
+    <update id="labelRename">
         UPDATE `photo_label`
         SET `name` = #{name}
         WHERE `id` = #{ID}
     </update>
 
-    <delete id="deleteSomeDevice" parameterType="list">
+    <delete id="deleteSomeDevice">
         DELETE FROM device WHERE id in
         <foreach collection="IDs" item="ID" open="(" close=")" separator=", ">
             #{ID}
@@ -471,15 +474,11 @@
     </delete>
 
     <delete id="clearDevice">
-        delete
-        from device
-        where id != 0;
+        truncate table device;
     </delete>
 
     <delete id="clearFolder">
-        delete
-        from photo_folder
-        where id != 0;
+        truncate table photo_folder;
     </delete>
 
     <delete id="clearPhoto">
@@ -526,6 +525,10 @@
              from version
              where name = 'label') table4);
     </select>
+
+    <update id="setNoAutoValueOnZero">
+        SET SESSION sql_mode = 'NO_AUTO_VALUE_ON_ZERO'
+    </update>
 
     <update id="closeForeignCheck">
         SET foreign_key_checks = 0;

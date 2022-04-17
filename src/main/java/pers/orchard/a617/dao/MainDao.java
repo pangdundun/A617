@@ -108,6 +108,8 @@ public interface MainDao {
 
     void clearLabel();
 
+    void setNoAutoValueOnZero();
+
     void closeForeignCheck();
 
     void openForeignCheck();

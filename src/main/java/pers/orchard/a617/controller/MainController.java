@@ -16,7 +16,9 @@ import pers.orchard.a617.bean.Version;
 import pers.orchard.a617.service.CalibrationService;
 import pers.orchard.a617.service.TestService;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Locale;
 
 @Controller
 public class MainController {
@@ -70,6 +72,8 @@ public class MainController {
     @RequestMapping("increase")
     @ResponseBody
     private String increase(@NotNull @RequestBody String json) {
+        printStart("increase", json);
+
         JSONObject resultObj = new JSONObject();
         long startTime = Calendar.getInstance().getTime().getTime();
 
@@ -82,13 +86,13 @@ public class MainController {
         Integer typeCode = parse.getInteger("typeCode");
         Integer operateCode = parse.getInteger("operateCode");
         Integer ruleCode = parse.getInteger("ruleCode");
-        JSONObject dataObj = parse.getJSONObject("data");
+        String dataJSONStr = parse.getString("data");
 
-        boolean error = requestCode == null || requestTime == null || deviceID == null || typeCode == null || operateCode == null || ruleCode == null || dataObj == null;
+        boolean error = requestCode == null || requestTime == null || deviceID == null || typeCode == null || operateCode == null || ruleCode == null || dataJSONStr == null;
 
         if (!error) {
-            if (requestCode == RequestCode.UPLOAD_INCREASE) {
-                IncreaseService.Data data = dataObj.toJavaObject(IncreaseService.Data.class);
+            IncreaseService.Data data = JSON.parseObject(dataJSONStr, IncreaseService.Data.class);
+            if (requestCode == RequestCode.UPLOAD_INCREASE && data != null) {
 
                 JSONObject object = increaseService.responseRecords(typeCode, operateCode, ruleCode, data);
 
@@ -106,7 +110,9 @@ public class MainController {
         }
 
         JSONDataHelper.setTimeConsuming(resultObj, startTime);
-        return resultObj.toJSONString();
+        String res = resultObj.toJSONString();
+        printEnd("increase", res);
+        return res;
     }
 
     /**
@@ -117,6 +123,8 @@ public class MainController {
     @RequestMapping("fullPull")
     @ResponseBody
     private String fullPull(@NotNull @RequestBody String json) {
+        printStart("fullPull", json);
+
         JSONObject resultObj = new JSONObject();
         long startTime = Calendar.getInstance().getTime().getTime();
 
@@ -147,7 +155,9 @@ public class MainController {
         }
 
         JSONDataHelper.setTimeConsuming(resultObj, startTime);
-        return resultObj.toJSONString();
+        String res = resultObj.toJSONString();
+        printEnd("fullPull", res);
+        return res;
     }
 
     /**
@@ -158,6 +168,8 @@ public class MainController {
     @RequestMapping("recreateAllTable")
     @ResponseBody
     private String recreateAllTable(@NotNull @RequestBody String json) {
+        printStart("recreateAllTable", json);
+
         JSONObject resultObj = new JSONObject();
         long startTime = Calendar.getInstance().getTime().getTime();
 
@@ -181,7 +193,9 @@ public class MainController {
         }
 
         JSONDataHelper.setTimeConsuming(resultObj, startTime);
-        return resultObj.toJSONString();
+        String res = resultObj.toJSONString();
+        printEnd("recreateAllTable", res);
+        return res;
     }
 
     /**
@@ -192,6 +206,8 @@ public class MainController {
     @RequestMapping("reinitializeAllTable")
     @ResponseBody
     private String reinitializeAllTable(@NotNull @RequestBody String json) {
+        printStart("reinitializeAllTable", json);
+
         JSONObject resultObj = new JSONObject();
         long startTime = Calendar.getInstance().getTime().getTime();
 
@@ -204,8 +220,8 @@ public class MainController {
         boolean error = requestCode == null || requestTime == null || deviceID == null;
 
         if (!error) {
-            if (requestCode == RequestCode.RECREATE_ALL_TABLE) {
-                testService.initialAllTable();
+            if (requestCode == RequestCode.REINITIALIZE_ALL_TABLE) {
+                testService.reinitializeAllTable();
 
                 JSONDataHelper.setResOK(resultObj);
             }
@@ -215,7 +231,22 @@ public class MainController {
         }
 
         JSONDataHelper.setTimeConsuming(resultObj, startTime);
-        return resultObj.toJSONString();
+        String res = resultObj.toJSONString();
+        printEnd("reinitializeAllTable", res);
+        return res;
     }
 
+    private void printStart(String interface_, String info) {
+        String time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CHINA).format(Calendar.getInstance().getTime());
+        String text = String.format(Locale.CHINA, "[%s] %s Receive data: %s", time, interface_, info);
+        System.out.println();
+        System.out.println(text);
+    }
+
+    private void printEnd(String interface_, String info) {
+        String time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CHINA).format(Calendar.getInstance().getTime());
+        String text = String.format(Locale.CHINA, "[%s] %s Return data: %s", time, interface_, info);
+        System.out.println(text);
+        System.out.println();
+    }
 }

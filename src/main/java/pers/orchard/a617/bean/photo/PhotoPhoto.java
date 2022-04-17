@@ -2,49 +2,84 @@ package pers.orchard.a617.bean.photo;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.annotation.JSONField;
 import org.springframework.lang.NonNull;
 
 import java.util.Arrays;
 import java.util.Date;
 
 public class PhotoPhoto {
+    @JSONField(name = "ID")
     private Integer ID;
+    @JSONField(name = "IDFolder")
     private Integer IDFolder;
+    @JSONField(name = "IDStory")
     private Integer IDStory;
+    @JSONField(name = "IDsTag")
     private Integer[] IDsTag;
+    @JSONField(name = "IDsTagTransfer")
     private String IDsTagTransfer;
+    @JSONField(name = "IDRegisterDevice")
     private Integer IDRegisterDevice;
+    @JSONField(name = "IDsStorageDevice")
     private Integer[] IDsStorageDevice;
+    @JSONField(name = "IDsStorageDeviceTransfer")
     private String IDsStorageDeviceTransfer;
 
+    @JSONField(name = "nameDisplay")
     private String nameDisplay;
+    @JSONField(name = "nameStorage")
     private String nameStorage;
+    @JSONField(name = "nameRegister")
     private String nameRegister;
+    @JSONField(name = "nameFolder")
     private String nameFolder;
+    @JSONField(name = "namesTag")
     private String[] namesTag;
+    @JSONField(name = "namesTagTransfer")
     private String namesTagTransfer;
+    @JSONField(name = "namesStorageDevice")
     private String[] namesStorageDevice;
+    @JSONField(name = "namesStorageDeviceTransfer")
     private String namesStorageDeviceTransfer;
 
+    @JSONField(name = "fileSize")
     private Integer fileSize;
+    @JSONField(name = "width")
     private Integer width;
+    @JSONField(name = "height")
     private Integer height;
+    @JSONField(name = "mimeType")
     private String mimeType;
+    @JSONField(name = "latitude")
     private Integer latitude;
+    @JSONField(name = "longitude")
     private Integer longitude;
+    @JSONField(name = "orientation")
     private Integer orientation;
+    @JSONField(name = "dateTaken")
     private Date dateTaken;
+    @JSONField(name = "description")
     private String description;
+    @JSONField(name = "MD5")
     private String MD5;
 
+    @JSONField(name = "presenceLocalFull")
     private Boolean presenceLocalFull;
+    @JSONField(name = "presenceLocalThumb")
     private Boolean presenceLocalThumb;
+    @JSONField(name = "presenceCloudThumb")
     private Boolean presenceCloudThumb;
+    @JSONField(name = "pathLocalFull")
     private String pathLocalFull;
+    @JSONField(name = "pathLocalThumb")
     private String pathLocalThumb;
 
+    @JSONField(name = "dateRegistered")
     private Date dateRegistered;
+    @JSONField(name = "dateUpdated")
     private Date dateUpdated;
+    @JSONField(name = "countUpdated")
     private Integer countUpdated;
 
     public PhotoPhoto() {

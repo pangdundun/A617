@@ -1,18 +1,28 @@
 package pers.orchard.a617.bean;
 
+import com.alibaba.fastjson.annotation.JSONField;
+
 import java.util.Date;
 
 public class Version {
+    @JSONField(name = "deviceVersion")
     private Integer deviceVersion;
+    @JSONField(name = "deviceDateUpdated")
     private Date deviceDateUpdated;
 
+    @JSONField(name = "folderVersion")
     private Integer folderVersion;
+    @JSONField(name = "folderDateUpdated")
     private Date folderDateUpdated;
 
+    @JSONField(name = "photoVersion")
     private Integer photoVersion;
+    @JSONField(name = "photoDateUpdated")
     private Date photoDateUpdated;
 
+    @JSONField(name = "labelVersion")
     private Integer labelVersion;
+    @JSONField(name = "labelDateUpdated")
     private Date labelDateUpdated;
 
     public Version() {

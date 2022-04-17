@@ -1,22 +1,33 @@
 package pers.orchard.a617.bean.photo;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import org.springframework.lang.NonNull;
 
 import java.util.Date;
 
 public class PhotoFolder {
+    @JSONField(name = "ID")
     private Integer ID;
+    @JSONField(name = "IDParent")
     private Integer IDParent;
+    @JSONField(name = "IDCreatedDevice")
     private Integer IDCreatedDevice;
+    @JSONField(name = "IDCover")
     private Integer IDCover;
 
+    @JSONField(name = "nameStorage")
     private String nameStorage;
+    @JSONField(name = "nameDisplay")
     private String nameDisplay;
 
+    @JSONField(name = "description")
     private String description;
 
+    @JSONField(name = "dateCreated")
     private Date dateCreated;
+    @JSONField(name = "dateUpdated")
     private Date dateUpdated;
+    @JSONField(name = "countUpdated")
     private Integer countUpdated;
 
     public PhotoFolder() {

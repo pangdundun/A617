@@ -1,15 +1,21 @@
 package pers.orchard.a617.bean.photo;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import org.springframework.lang.NonNull;
 
 import java.util.Date;
 
 public class PhotoTagPhoto {
+    @JSONField(name = "ID")
     private Integer ID;
+    @JSONField(name = "name")
     private String name;
 
+    @JSONField(name = "dateCreated")
     private Date dateCreated;
+    @JSONField(name = "dateUpdated")
     private Date dateUpdated;
+    @JSONField(name = "countUpdated")
     private Integer countUpdated;
 
     public PhotoTagPhoto() {

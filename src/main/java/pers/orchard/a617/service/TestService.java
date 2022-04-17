@@ -22,6 +22,8 @@ public class TestService {
         dao.dropPhotoTable();
         dao.dropLabelTable();
 
+        dao.setNoAutoValueOnZero();
+
         dao.createVersionTable();
         dao.createDeviceTable();
         dao.createFolderTable();
@@ -31,7 +33,7 @@ public class TestService {
         dao.openForeignCheck();
     }
 
-    public void initialAllTable() {
+    public void reinitializeAllTable() {
         dao.closeForeignCheck();
 
         dao.clearVersion();
@@ -40,10 +42,12 @@ public class TestService {
         dao.clearPhoto();
         dao.clearLabel();
 
-        dao.openForeignCheck();
-
         dao.versionInitial();
+
+        dao.setNoAutoValueOnZero();
         dao.deviceInitial();
         dao.folderInitial();
+
+        dao.openForeignCheck();
     }
 }
