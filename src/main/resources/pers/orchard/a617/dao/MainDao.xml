@@ -53,7 +53,7 @@
         <result column="count_updated" jdbcType="INTEGER" property="countUpdated"/>
     </resultMap>
 
-    <resultMap id="LabelResultMap" type="pers.orchard.a617.bean.photo.PhotoTagPhoto">
+    <resultMap id="LabelResultMap" type="pers.orchard.a617.bean.photo.PhotoLabel">
         <id column="id" jdbcType="INTEGER" property="ID"/>
         <result column="name" jdbcType="VARCHAR" property="name"/>
         <result column="date_created" jdbcType="TIMESTAMP" property="dateCreated"/>
@@ -238,6 +238,11 @@
                                 count_updated     = 0;
     </insert>
 
+    <insert id="deviceInsertOneMini" useGeneratedKeys="true" keyProperty="ID" keyColumn="id">
+        insert into device (id, name)
+        values (#{ID}, #{name})
+    </insert>
+
     <insert id="deviceInsertOne" useGeneratedKeys="true" keyProperty="ID" keyColumn="id">
         insert into device (id, name, date_registered, date_visited)
         values (#{ID}, #{name}, #{dateRegistered}, #{dateVisited})
@@ -250,6 +255,11 @@
         <foreach collection="list" item="folder" separator=", ">
             (#{ID}, #{name}, #{dateRegistered}, #{dateVisited})
         </foreach>
+    </insert>
+
+    <insert id="folderInsertOneMini" useGeneratedKeys="true" keyProperty="ID" keyColumn="id">
+        insert into photo_folder (id, id_parent, id_created_device, name_storage, name_display)
+        VALUES (#{ID}, #{IDParent}, #{IDCreatedDevice}, #{nameStorage}, #{nameDisplay})
     </insert>
 
     <insert id="folderInsertOne" useGeneratedKeys="true" keyProperty="ID" keyColumn="id">
@@ -299,7 +309,7 @@
         date_updated, count_updated)
         VALUES
         <foreach collection="list" item="photo" separator=", ">
-            (#{ID},#{IDFolder},#{IDsTagTransfer},#{IDRegisterDevice},#{IDsStorageDeviceTransfer},#{nameDisplay},#{nameStorage},#{nameRegister},#{nameFolder},#{namesTagTransfer},#{namesStorageDeviceTransfer},#{fileSize},#{width},#{height},#{mimeType},#{latitude},#{longitude},#{orientation},#{dateTaken},#{description},#{MD5},#{presenceLocalFull},#{presenceLocalThumb},#{presenceCloudThumb},#{pathLocalFull},#{pathLocalThumb},#{dateRegistered},#{dateRegistered},#{countUpdated})
+            (#{photo.ID},#{photo.IDFolder},#{photo.IDsTagTransfer},#{photo.IDRegisterDevice},#{photo.IDsStorageDeviceTransfer},#{photo.nameDisplay},#{photo.nameStorage},#{photo.nameRegister},#{photo.nameFolder},#{photo.namesTagTransfer},#{photo.namesStorageDeviceTransfer},#{photo.fileSize},#{photo.width},#{photo.height},#{photo.mimeType},#{photo.latitude},#{photo.longitude},#{photo.orientation},#{photo.dateTaken},#{photo.description},#{photo.MD5},#{photo.presenceLocalFull},#{photo.presenceLocalThumb},#{photo.presenceCloudThumb},#{photo.pathLocalFull},#{photo.pathLocalThumb},#{photo.dateRegistered},#{photo.dateRegistered},#{photo.countUpdated})
         </foreach>
     </insert>
 
@@ -312,7 +322,7 @@
         insert into photo_label (id, name, date_created, date_updated, count_updated)
         values
         <foreach collection="list" item="label" separator=", ">
-            (#{ID},#{name},#{dateCreated},#{dateUpdated},#{countUpdated})
+            (#{label.ID},#{label.name},#{label.dateCreated},#{label.dateUpdated},#{label.countUpdated})
         </foreach>
     </insert>
 
@@ -436,9 +446,12 @@
     </update>
 
     <update id="labelRename">
-        UPDATE `photo_label`
-        SET `name` = #{name}
-        WHERE `id` = #{ID}
+        UPDATE `a617`.`photo_label`
+        SET `name`          = #{name},
+            `date_created`  = #{dateCreated},
+            `date_updated`  = #{dateUpdated},
+            `count_updated` = #{countUpdated}
+        WHERE `id` = #{ID};
     </update>
 
     <delete id="deleteSomeDevice">
@@ -448,11 +461,10 @@
         </foreach>
     </delete>
 
-    <delete id="deleteSomeFolder">
-        DELETE FROM photo_folder WHERE id in
-        <foreach collection="IDs" item="ID" open="(" close=")" separator=", ">
-            #{ID}
-        </foreach>
+    <delete id="deleteOneFolder">
+        DELETE
+        FROM photo_folder
+        WHERE id = #{ID};
     </delete>
 
     <delete id="deleteSomePhoto">
@@ -496,9 +508,40 @@
         from device;
     </select>
 
+    <select id="selectAllDeviceWithoutID0" resultType="pers.orchard.a617.bean.Device">
+        select *
+        from device
+        where id != 0;
+    </select>
+
+    <select id="selectDeviceByID" resultType="pers.orchard.a617.bean.Device">
+        select *
+        from device
+        where id = #{ID};
+    </select>
+
     <select id="selectAllFolder" resultMap="FolderResultMap">
         select *
         from photo_folder;
+    </select>
+
+    <select id="selectAllFolderWithoutID0" resultType="pers.orchard.a617.bean.photo.PhotoFolder">
+        select *
+        from photo_folder
+        where id != 0;
+    </select>
+
+    <select id="selectFolderByID" resultType="pers.orchard.a617.bean.photo.PhotoFolder">
+        select *
+        from photo_folder
+        where id = #{ID};
+    </select>
+
+    <select id="getFolderCountInSameFolderByName" resultType="java.lang.Integer">
+        SELECT count(*)
+        FROM photo_folder
+        WHERE id_parent = #{IDFolder}
+          AND name_display = #{nameDisplay};
     </select>
 
     <select id="selectAllPhoto" resultMap="PhotoResultMap">
@@ -509,6 +552,12 @@
     <select id="selectAllLabel" resultMap="LabelResultMap">
         select *
         from photo_label;
+    </select>
+
+    <select id="getLabelCountByName" resultType="java.lang.Integer">
+        SELECT count(*)
+        FROM photo_label
+        WHERE name = #{name};
     </select>
 
     <select id="selectAllVersion" resultMap="VersionResultMap">

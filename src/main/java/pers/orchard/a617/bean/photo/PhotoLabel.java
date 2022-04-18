@@ -1,11 +1,10 @@
 package pers.orchard.a617.bean.photo;
 
 import com.alibaba.fastjson.annotation.JSONField;
-import org.springframework.lang.NonNull;
 
 import java.util.Date;
 
-public class PhotoTagPhoto {
+public class PhotoLabel {
     @JSONField(name = "ID")
     private Integer ID;
     @JSONField(name = "name")
@@ -18,7 +17,7 @@ public class PhotoTagPhoto {
     @JSONField(name = "countUpdated")
     private Integer countUpdated;
 
-    public PhotoTagPhoto() {
+    public PhotoLabel() {
 
     }
 

@@ -1,7 +1,7 @@
 package pers.orchard.a617.constant;
 
 /**
- * @version 20220417-020643
+ * @version 20220418-020904
  */
 public class RuleCode {
     public static final int INSERT_ONE = 1;
@@ -15,5 +15,5 @@ public class RuleCode {
 
     public static final int DELETE_BY_ID = 8;
     public static final int DELETE_BY_IDS = 9;
-    public static final int DELETE_BY_ID_FOLDER = 10;
+    public static final int DELETE_BY_ID_FOLDERS = 10;
 }

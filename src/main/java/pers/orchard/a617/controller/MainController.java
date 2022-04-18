@@ -65,9 +65,9 @@ public class MainController {
 
 
     /**
-     * Send @version 20220416-232228
+     * Send @version 20220418-023421
      * <p>
-     * Receive @version 20220416-234625
+     * Receive @version 20220418-023447
      */
     @RequestMapping("increase")
     @ResponseBody
@@ -86,25 +86,16 @@ public class MainController {
         Integer typeCode = parse.getInteger("typeCode");
         Integer operateCode = parse.getInteger("operateCode");
         Integer ruleCode = parse.getInteger("ruleCode");
-        String dataJSONStr = parse.getString("data");
+        JSONObject dataObj = parse.getJSONObject("data");
 
-        boolean error = requestCode == null || requestTime == null || deviceID == null || typeCode == null || operateCode == null || ruleCode == null || dataJSONStr == null;
+        boolean error = requestCode == null || requestTime == null || deviceID == null || typeCode == null || operateCode == null || ruleCode == null || dataObj == null;
 
         if (!error) {
-            IncreaseService.Data data = JSON.parseObject(dataJSONStr, IncreaseService.Data.class);
-            if (requestCode == RequestCode.UPLOAD_INCREASE && data != null) {
-
-                JSONObject object = increaseService.responseRecords(typeCode, operateCode, ruleCode, data);
-
-                Integer data_int1 = object.getInteger("data_int1");
-                resultObj.put("data_int1", data_int1);
-
-                JSONDataHelper.setResOK(resultObj);
+            if (requestCode == RequestCode.UPLOAD_INCREASE) {
+                increaseService.responseRecords(typeCode, operateCode, ruleCode, dataObj, resultObj);
             }
-
             resultObj.put("requestTime", requestTime);
             resultObj.put("deviceID", deviceID);
-
         } else {
             JSONDataHelper.setResDataIncorrect(resultObj);
         }

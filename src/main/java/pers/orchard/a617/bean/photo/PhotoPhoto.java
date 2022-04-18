@@ -52,9 +52,9 @@ public class PhotoPhoto {
     @JSONField(name = "mimeType")
     private String mimeType;
     @JSONField(name = "latitude")
-    private Integer latitude;
+    private String latitude;
     @JSONField(name = "longitude")
-    private Integer longitude;
+    private String longitude;
     @JSONField(name = "orientation")
     private Integer orientation;
     @JSONField(name = "dateTaken")
@@ -269,19 +269,19 @@ public class PhotoPhoto {
         this.mimeType = mimeType;
     }
 
-    public Integer getLatitude() {
+    public String getLatitude() {
         return latitude;
     }
 
-    public void setLatitude(Integer latitude) {
+    public void setLatitude(String latitude) {
         this.latitude = latitude;
     }
 
-    public Integer getLongitude() {
+    public String getLongitude() {
         return longitude;
     }
 
-    public void setLongitude(Integer longitude) {
+    public void setLongitude(String longitude) {
         this.longitude = longitude;
     }
 

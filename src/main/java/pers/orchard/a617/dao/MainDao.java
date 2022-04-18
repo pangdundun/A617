@@ -5,7 +5,7 @@ import pers.orchard.a617.bean.Device;
 import pers.orchard.a617.bean.Version;
 import pers.orchard.a617.bean.photo.PhotoFolder;
 import pers.orchard.a617.bean.photo.PhotoPhoto;
-import pers.orchard.a617.bean.photo.PhotoTagPhoto;
+import pers.orchard.a617.bean.photo.PhotoLabel;
 
 import java.util.List;
 
@@ -34,11 +34,23 @@ public interface MainDao {
 
     List<Device> selectAllDevice();
 
+    List<Device> selectAllDeviceWithoutID0();
+
+    Device selectDeviceByID(int iD);
+
     List<PhotoFolder> selectAllFolder();
+
+    List<PhotoFolder> selectAllFolderWithoutID0();
+
+    PhotoFolder selectFolderByID(int ID);
+
+    int getFolderCountInSameFolderByName(int IDFolder, String nameDisplay);
 
     List<PhotoPhoto> selectAllPhoto();
 
-    List<PhotoTagPhoto> selectAllLabel();
+    List<PhotoLabel> selectAllLabel();
+
+    int getLabelCountByName(String name);
 
     Version selectAllVersion();
 
@@ -48,9 +60,13 @@ public interface MainDao {
 
     void folderInitial();
 
+    int deviceInsertOneMini(Device device);
+
     int deviceInsertOne(Device device);
 
     int deviceInsertSome(List<Device> list);
+
+    int folderInsertOneMini(PhotoFolder folder);
 
     int folderInsertOne(PhotoFolder folder);
 
@@ -60,9 +76,9 @@ public interface MainDao {
 
     int photoInsertSome(List<PhotoPhoto> list);
 
-    int labelInsertOne(PhotoTagPhoto label);
+    int labelInsertOne(PhotoLabel label);
 
-    int labelInsertSome(List<PhotoTagPhoto> list);
+    int labelInsertSome(List<PhotoLabel> list);
 
     int deviceUpdate(Device device);
 
@@ -86,13 +102,13 @@ public interface MainDao {
 
     void photoUpdateMD5(int ID, String MD5);
 
-    int updateLabel(PhotoTagPhoto label);
+    int updateLabel(PhotoLabel label);
 
-    void labelRename(int ID, String name);
+    void labelRename(PhotoLabel label);
 
     int deleteSomeDevice(int[] IDs);
 
-    int deleteSomeFolder(int[] IDs);
+    int deleteOneFolder(int ID);
 
     int deleteSomePhoto(int[] IDs);
 

@@ -1,15 +1,12 @@
 package pers.orchard.a617.service;
 
 import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pers.orchard.a617.bean.Device;
 import pers.orchard.a617.bean.photo.PhotoFolder;
 import pers.orchard.a617.bean.photo.PhotoPhoto;
-import pers.orchard.a617.bean.photo.PhotoTagPhoto;
-import pers.orchard.a617.constant.RuleCode;
+import pers.orchard.a617.bean.photo.PhotoLabel;
 import pers.orchard.a617.constant.TypeCode;
 import pers.orchard.a617.dao.MainDao;
 
@@ -43,7 +40,7 @@ public class FullPullService {
                 dataArr.addAll(photos);
             }
             case TypeCode.LABEL -> {
-                List<PhotoTagPhoto> labels = dao.selectAllLabel();
+                List<PhotoLabel> labels = dao.selectAllLabel();
                 dataArr.addAll(labels);
             }
         }
