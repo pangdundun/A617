@@ -5,20 +5,63 @@
     <title>Console</title>
 </head>
 <body>
-<div id="button-group">
-    <button id="buttonFullPullDevice">FullPull Device</button>
-    <button id="buttonFullPullFolder">FullPull Folder</button>
-    <button id="buttonFullPullPhoto">FullPull Photo</button>
-    <button id="buttonFullPullLabel">FullPull Label</button>
-    <button id="buttonIncrease">Increase</button>
-    <button id="buttonRecreateAllTable">RecreateAllTable</button>
-    <button id="buttonReinitializeAllTable">ReinitializeAllTable</button>
+<div id="button-group" style="text-align: center">
+    <label style="text-align: center">Select interface:
+        <br/>
+        <select id="selectInterface">
+            <option value="1">increase</option>
+            <option value="2">fullPull</option>
+            <option value="3">fullPush</option>
+            <option value="4">rebuildDatabase</option>
+            <option value="5">reinitializeAllTable</option>
+        </select>
+    </label>
+    <br/>
+    <label style="text-align: center">Select type:
+        <br/>
+        <select id="selectType">
+            <option id="typePost" value="1">POST</option>
+            <option id="typeGet" value="2">GET</option>
+        </select>
+    </label>
+    <br/>
+    <label style="text-align: center">Input data:
+        <br/>
+        <textarea id="inputData" style="width: 500px; height: 400px"></textarea>
+    </label>
+    <br/>
+    <label style="text-align: center">Get example:
+        <select id="selectExample">
+            <option value="1">FullPull Device</option>
+            <option value="2">FullPull Folder</option>
+            <option value="3">FullPull Photo</option>
+            <option value="4">FullPull Label</option>
+            <option value="5">Increase Folder Insert</option>
+            <option value="6">RebuildDatabase</option>
+            <option value="7">RecreateAllTable</option>
+        </select>
+    </label>
+    <button id="getExampleData">Get</button>
+    <br/>
+    <button id="submit">Submit</button>
+    <br/>
+    <br/>
+    <label style="text-align: center">Result display area:
+        <br/>
+        <textarea id="resultDisplay" style="width: 500px; height: 400px"></textarea>
+    </label>
+    <br/>
+
+    <button style="visibility: hidden" id="buttonFullPullDevice">FullPull Device</button>
+    <button style="visibility: hidden" id="buttonFullPullFolder">FullPull Folder</button>
+    <button style="visibility: hidden" id="buttonFullPullPhoto">FullPull Photo</button>
+    <button style="visibility: hidden" id="buttonFullPullLabel">FullPull Label</button>
+    <button style="visibility: hidden" id="buttonIncrease">Increase</button>
+    <button style="visibility: hidden" id="buttonRecreateAllTable">RecreateAllTable</button>
+    <button style="visibility: hidden" id="buttonReinitializeAllTable">ReinitializeAllTable</button>
 </div>
 
-<label for="result-display">Result display area: </label>
-<br/>
-<textarea id="result-display" style="width: 500px; height: 400px"></textarea>
-
+<script th:src="@{jquery-3.6.0.js}"></script>
 <script th:src="@{frame.js}"></script>
 <script th:inline="javascript"></script>
 </body>

@@ -1,26 +1,21 @@
 package pers.orchard.a617.service;
 
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import pers.orchard.a617.bean.Device;
 import pers.orchard.a617.bean.photo.PhotoFolder;
-import pers.orchard.a617.bean.photo.PhotoPhoto;
 import pers.orchard.a617.bean.photo.PhotoLabel;
+import pers.orchard.a617.bean.photo.PhotoPhoto;
+import pers.orchard.a617.bean.photo.PhotoWithLabelEntity;
 import pers.orchard.a617.constant.OperateCode;
 import pers.orchard.a617.constant.RuleCode;
 import pers.orchard.a617.constant.TypeCode;
 import pers.orchard.a617.controller.JSONDataHelper;
 import pers.orchard.a617.dao.MainDao;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class IncreaseService {
@@ -45,6 +40,9 @@ public class IncreaseService {
             case TypeCode.LABEL -> {
                 handleLabel(operateCode, ruleCode, dataObj, resultObj);
             }
+            case TypeCode.LABEL_WITH_PHOTO -> {
+                handlePhotoWithLabel(operateCode, ruleCode, dataObj, resultObj);
+            }
         }
     }
 
@@ -54,7 +52,7 @@ public class IncreaseService {
             }
             case OperateCode.INSERT -> {
                 if (ruleCode == RuleCode.INSERT_ONE) {
-                    Device device = getObject1(dataObj, Device.class);
+                    Device device = JSONHelper.getObject1(dataObj, Device.class);
 
                     Date now = new Date();
                     device.setDateRegistered(now);
@@ -63,7 +61,7 @@ public class IncreaseService {
                     dao.deviceInsertOne(device);
 
                     JSONObject dataObj2 = new JSONObject();
-                    dataObj2.put("object1", device);
+                    dataObj2.put("int1", device.getID());
                     resultObj.put("data", dataObj2);
 
                     JSONDataHelper.setResOK(resultObj);
@@ -82,22 +80,25 @@ public class IncreaseService {
             }
             case OperateCode.INSERT -> {
                 if (ruleCode == RuleCode.INSERT_ONE) {
-                    PhotoFolder folder = getObject1(dataObj, PhotoFolder.class);
+                    PhotoFolder folder = JSONHelper.getObject1(dataObj, PhotoFolder.class);
 
                     int IDFolder = folder.getIDParent();
                     String nameDisplay = folder.getNameDisplay();
 
-                    int count = dao.getFolderCountInSameFolderByName(IDFolder, nameDisplay);
+                    boolean error = dao.getFolderCountInSameFolderByName(IDFolder, nameDisplay) != 0;
 
-                    if (count == 0) {
+                    error = false;
+                    if (!error) {
                         Date now = new Date();
                         folder.setDateCreated(now);
                         folder.setDateUpdated(now);
                         folder.setCountUpdated(0);
 
+                        System.out.println("folder::" + folder);
                         dao.folderInsertOne(folder);
 
                         JSONObject dataObj2 = new JSONObject();
+                        dataObj2.put("int1", folder.getID());
                         dataObj2.put("object1", folder);
                         resultObj.put("data", dataObj2);
 
@@ -110,36 +111,91 @@ public class IncreaseService {
             case OperateCode.UPDATE -> {
                 switch (ruleCode) {
                     case RuleCode.UPDATE_MOVE -> {
-                        int parentID = getInt1(dataObj);
-                        int[] IDs = getIntArr(dataObj);
+                        int parentID = JSONHelper.getInt1(dataObj);
+                        int[] IDs = JSONHelper.getIntArr(dataObj);
 
-                        dao.folderMove(parentID, IDs);
-                        JSONDataHelper.setResOK(resultObj);
+                        boolean error = dao.getFolderCountWhereID(parentID) != 1 || IDs.length == 0;
+                        String errorInfo = "The destination directory does not exist or the ID data is empty.";
+
+                        if (!error) {
+                            for (int ID : IDs) {
+                                if (ID == 0 || dao.getPhotoCountWhereID(ID) != 1) {
+                                    error = false;
+                                    errorInfo = "Photo does not exist.";
+                                    break;
+                                }
+                            }
+                        }
+
+                        error = false;
+                        if (!error) {
+                            dao.folderMove(parentID, IDs);
+                            JSONDataHelper.setResOK(resultObj);
+                        } else {
+                            JSONDataHelper.setResDataIncorrect(resultObj, errorInfo);
+                        }
                     }
                     case RuleCode.UPDATE_RENAME -> {
-                        int ID = getInt1(dataObj);
-                        String nameDisplay = getString1(dataObj);
+                        int ID = JSONHelper.getInt1(dataObj);
+                        String nameDisplay = JSONHelper.getString1(dataObj);
 
-                        dao.folderRename(ID, nameDisplay);
-                        JSONDataHelper.setResOK(resultObj);
+                        boolean error = ID == 0 || dao.getFolderCountWhereID(ID) != 1 || dao.getFolderCountInSameFolderByName(ID, nameDisplay) != 0;
+                        String errorInfo = "The root directory cannot be operated, or the directory to be named does not exist, or a directory with the same name already exists under the current directory.";
+
+                        error = false;
+                        if (!error) {
+                            dao.folderRename(ID, nameDisplay);
+                            JSONDataHelper.setResOK(resultObj);
+                        } else {
+                            JSONDataHelper.setResDataIncorrect(resultObj, errorInfo);
+                        }
                     }
                     case RuleCode.UPDATE_DESCRIPTION -> {
-                        int ID = getInt1(dataObj);
-                        String description = getString1(dataObj);
+                        int ID = JSONHelper.getInt1(dataObj);
+                        String description = JSONHelper.getString1(dataObj);
 
-                        dao.folderUpdateDescription(ID, description);
-                        JSONDataHelper.setResOK(resultObj);
+                        boolean error = dao.getFolderCountWhereID(ID) != 1;
+                        String errorInfo = "The photo to be modified does not exist.";
+
+                        error = false;
+                        if (!error) {
+                            if (description == null) {
+                                description = "";
+                            }
+                            dao.folderUpdateDescription(ID, description);
+                            JSONDataHelper.setResOK(resultObj);
+                        } else {
+                            JSONDataHelper.setResDataIncorrect(resultObj, errorInfo);
+                        }
                     }
                 }
             }
             case OperateCode.DELETE -> {
                 if (ruleCode == RuleCode.DELETE_BY_IDS) {
-                    int[] IDs = getIntArr(dataObj);
+                    int[] IDs = JSONHelper.getIntArr(dataObj);
 
-                    for (int id : IDs) {
-                        dao.deleteOneFolder(id);
+                    boolean error = IDs.length == 0;
+                    String errorInfo = "ID array cannot be empty.";
+
+                    if (!error) {
+                        for (int ID : IDs) {
+                            if (dao.getFolderCountWhereID(ID) != 1) {
+                                error = false;
+                                errorInfo = "The directory(" + ID + ") to be deleted does not exist.";
+                                break;
+                            }
+                        }
                     }
-                    JSONDataHelper.setResOK(resultObj);
+
+                    error = false;
+                    if (!error) {
+                        for (int id : IDs) {
+                            dao.deleteOneFolder(id);
+                        }
+                        JSONDataHelper.setResOK(resultObj);
+                    } else {
+                        JSONDataHelper.setResDataIncorrect(resultObj, errorInfo);
+                    }
                 }
             }
         }
@@ -152,85 +208,201 @@ public class IncreaseService {
             case OperateCode.INSERT -> {
                 if (ruleCode == RuleCode.INSERT_SOME) {
                     List<PhotoPhoto> list = new ArrayList<>();
-                    Object[] objectArr = getObjectArr(dataObj);
+                    Object[] objectArr = JSONHelper.getObjectArr(dataObj);
 
-                    for (Object o : objectArr) {
-                        JSONObject obj = (JSONObject) o;
-                        PhotoPhoto photo = castToPhoto(obj);
+                    boolean error = objectArr.length == 0;
+                    String errorInfo = "The directory to be deleted does not exist.";
 
-                        Date now = new Date();
-                        photo.setDateUpdated(now);
-                        photo.setDateRegistered(now);
-                        photo.setCountUpdated(0);
+                    if (!error) {
+                        for (Object o : objectArr) {
+                            JSONObject obj = (JSONObject) o;
+                            PhotoPhoto photo = JSONHelper.castToPhoto(obj);
 
-                        list.add(photo);
+                            int folderID = photo.getIDFolder();
+                            if (folderID == 0 || dao.getFolderCountWhereID(folderID) != 1 || photo.getIDRegisterDevice() < 0) {
+                                error = false;
+                                errorInfo = "The root directory is being operated on, or the directory does not exist, or the device ID is illegal.";
+                                break;
+                            }
+
+                            Date now = new Date();
+                            photo.setDateUpdated(now);
+                            photo.setDateRegistered(now);
+                            photo.setCountUpdated(0);
+
+                            list.add(photo);
+                        }
                     }
 
-                    dao.photoInsertSome(list);
+                    error = false;
+                    if (!error) {
+                        dao.photoInsertSome(list);
 
-                    JSONObject dataObj2 = new JSONObject();
-                    dataObj2.put("objectArr", list);
-                    resultObj.put("data", dataObj2);
+                        JSONObject dataObj2 = new JSONObject();
+                        int[] IDs = new int[list.size()];
+                        for (int i = 0; i < list.size(); i++) {
+                            IDs[i] = list.get(i).getID();
+                        }
+                        dataObj2.put("intArr", IDs);
+                        resultObj.put("data", dataObj2);
 
-                    JSONDataHelper.setResOK(resultObj);
+                        JSONDataHelper.setResOK(resultObj);
+                    } else {
+                        JSONDataHelper.setResDataIncorrect(resultObj, errorInfo);
+                    }
                 }
             }
             case OperateCode.UPDATE -> {
                 switch (ruleCode) {
                     case RuleCode.UPDATE_MOVE -> {
-                        int IDFolder = getInt1(dataObj);
-                        int[] IDs = getIntArr(dataObj);
+                        int IDFolder = JSONHelper.getInt1(dataObj);
+                        int[] IDs = JSONHelper.getIntArr(dataObj);
 
-                        dao.folderMove(IDFolder, IDs);
-                        JSONDataHelper.setResOK(resultObj);
+                        boolean error = dao.getFolderCountWhereID(IDFolder) != 1 || IDs.length == 0;
+                        String errorInfo = "The directory does not exist or the ID array is empty.";
+
+                        for (int ID : IDs) {
+                            if (dao.getPhotoCountWhereID(ID) != 1) {
+                                error = false;
+                                errorInfo = "Photo does not exist.";
+                                break;
+                            }
+                        }
+
+                        error = false;
+                        if (!error) {
+                            dao.folderMove(IDFolder, IDs);
+                            JSONDataHelper.setResOK(resultObj);
+                        } else {
+                            JSONDataHelper.setResDataIncorrect(resultObj, errorInfo);
+                        }
+
                     }
                     case RuleCode.UPDATE_RENAME -> {
-                        int ID = getInt1(dataObj);
-                        String nameDisplay = getString1(dataObj);
+                        int ID = JSONHelper.getInt1(dataObj);
+                        String nameDisplay = JSONHelper.getString1(dataObj);
 
-                        dao.photoRename(ID, nameDisplay);
-                        JSONDataHelper.setResOK(resultObj);
+                        boolean error = dao.getPhotoCountWhereID(ID) != 1 || nameDisplay == null || "".equals(nameDisplay);
+                        String errorInfo = "The photo does not exist or the name is empty.";
+
+                        error = false;
+                        if (!error) {
+                            dao.photoRename(ID, nameDisplay);
+                            JSONDataHelper.setResOK(resultObj);
+                        } else {
+                            JSONDataHelper.setResDataIncorrect(resultObj, errorInfo);
+                        }
+
                     }
                     case RuleCode.UPDATE_DESCRIPTION -> {
-                        int ID = getInt1(dataObj);
-                        String description = getString1(dataObj);
+                        int ID = JSONHelper.getInt1(dataObj);
+                        String description = JSONHelper.getString1(dataObj);
 
-                        dao.photoUpdateDescription(ID, description);
-                        JSONDataHelper.setResOK(resultObj);
+                        boolean error = dao.getPhotoCountWhereID(ID) != 1 || description == null;
+                        String errorInfo = "Photo does not exist or description is empty.";
+
+                        error = false;
+                        if (!error) {
+                            dao.photoUpdateDescription(ID, description);
+                            JSONDataHelper.setResOK(resultObj);
+                        } else {
+                            JSONDataHelper.setResDataIncorrect(resultObj, errorInfo);
+                        }
                     }
                     case RuleCode.UPDATE_LABELS -> {
-                        int ID = getInt1(dataObj);
-                        int[] IDs = getIntArr(dataObj);
-                        String[] names = getStringArr(dataObj);
+                        int photoID = JSONHelper.getInt1(dataObj);
+                        int[] labelIDs = JSONHelper.getIntArr(dataObj);
 
-                        String str1 = JSONArray.toJSONString(IDs);
-                        String str2 = JSONArray.toJSONString(names);
+                        boolean error = dao.getPhotoCountWhereID(photoID) != 1;
+                        String errorInfo = "Photo does not exist.";
 
-                        dao.photoUpdateLabels(ID, str1, str2);
-                        JSONDataHelper.setResOK(resultObj);
+                        if (!error) {
+                            for (int labelID : labelIDs) {
+                                if (dao.getLabelCountWhereID(labelID) != 1) {
+                                    error = false;
+                                    errorInfo = "Label does not exist.";
+                                    break;
+                                }
+                            }
+                        }
+
+                        error = false;
+                        if (!error) {
+                            List<PhotoWithLabelEntity> list = new ArrayList<>();
+                            for (int labelID : labelIDs) {
+                                PhotoWithLabelEntity entity = new PhotoWithLabelEntity();
+                                entity.setLabelID(labelID);
+                                entity.setPhotoID(photoID);
+                                entity.setAddedDate(new Date());
+                                list.add(entity);
+                            }
+
+                            dao.deletePhotoWithLabelWherePhotoID(photoID);
+                            System.out.println("DELETED FINISH");
+                            if (list.size() != 0) {
+                                dao.insertPhotoWithLabel(list);
+                            }
+                            JSONDataHelper.setResOK(resultObj);
+                        } else {
+                            JSONDataHelper.setResDataIncorrect(resultObj, errorInfo);
+                        }
                     }
                     case RuleCode.UPDATE_MD5 -> {
-                        int ID = getInt1(dataObj);
-                        String MD5 = getString1(dataObj);
+                        int ID = JSONHelper.getInt1(dataObj);
+                        String MD5 = JSONHelper.getString1(dataObj);
 
-                        dao.photoUpdateMD5(ID, MD5);
-                        JSONDataHelper.setResOK(resultObj);
+                        boolean error = dao.getPhotoCountWhereID(ID) != 1 || MD5 == null;
+                        String errorInfo = "Photo does not exist or MD5 value is null.";
+
+                        error = false;
+                        if (!error) {
+                            dao.photoUpdateMD5(ID, MD5);
+                            JSONDataHelper.setResOK(resultObj);
+                        } else {
+                            JSONDataHelper.setResDataIncorrect(resultObj, errorInfo);
+                        }
                     }
                 }
             }
             case OperateCode.DELETE -> {
                 switch (ruleCode) {
                     case RuleCode.DELETE_BY_IDS -> {
-                        int[] intArr = getIntArr(dataObj);
+                        int[] intArr = JSONHelper.getIntArr(dataObj);
 
-                        dao.deleteSomePhoto(intArr);
-                        JSONDataHelper.setResOK(resultObj);
+                        boolean error = intArr.length == 0;
+                        String errorInfo = "The ID array is empty.";
+
+                        if (!error) {
+                            for (int ID : intArr) {
+                                if (dao.getPhotoCountWhereID(ID) != 1) {
+                                    error = false;
+                                    errorInfo = "Photo does not exist.";
+                                    break;
+                                }
+                            }
+                        }
+
+                        error = false;
+                        if (!error) {
+                            dao.deleteSomePhoto(intArr);
+                            JSONDataHelper.setResOK(resultObj);
+                        } else {
+                            JSONDataHelper.setResDataIncorrect(resultObj, errorInfo);
+                        }
                     }
                     case RuleCode.DELETE_BY_ID_FOLDERS -> {
-                        int[] IDs = getIntArr(dataObj);
+                        int[] IDs = JSONHelper.getIntArr(dataObj);
 
-                        dao.deleteSomePhoto(IDs);
-                        JSONDataHelper.setResOK(resultObj);
+                        boolean error = IDs.length == 0;
+                        String errorInfo = "The ID array is empty.";
+
+                        error = false;
+                        if (!error) {
+                            dao.deletePhotoWhereFolderIDs(IDs);
+                            JSONDataHelper.setResOK(resultObj);
+                        } else {
+                            JSONDataHelper.setResDataIncorrect(resultObj, errorInfo);
+                        }
                     }
                 }
             }
@@ -243,10 +415,13 @@ public class IncreaseService {
             }
             case OperateCode.INSERT -> {
                 if (ruleCode == RuleCode.INSERT_ONE) {
-                    String name = getString1(dataObj);
-                    int count = dao.getLabelCountByName(name);
+                    String name = JSONHelper.getString1(dataObj);
 
-                    if (count == 0) {
+                    boolean error = dao.getLabelCountByName(name) != 0;
+                    String errorInfo = "A label with the same name exists.";
+
+                    error = false;
+                    if (!error) {
                         PhotoLabel label = new PhotoLabel();
                         label.setName(name);
                         Date now = new Date();
@@ -257,170 +432,186 @@ public class IncreaseService {
                         dao.labelInsertOne(label);
 
                         JSONObject dataObj2 = new JSONObject();
-                        dataObj2.put("object1", label);
+                        dataObj2.put("int1", label.getID());
                         resultObj.put("data", dataObj2);
 
                         JSONDataHelper.setResOK(resultObj);
                     } else {
-                        JSONDataHelper.setResErrorContentWithTheSameName(resultObj);
+                        JSONDataHelper.setResDataIncorrect(resultObj, errorInfo);
                     }
                 }
             }
             case OperateCode.UPDATE -> {
                 if (ruleCode == RuleCode.UPDATE_RENAME) {
-                    PhotoLabel label = getObject1(dataObj, PhotoLabel.class);
+                    int ID = JSONHelper.getInt1(dataObj);
+                    String name = JSONHelper.getString1(dataObj);
 
-                    String name = label.getName();
-                    int count = dao.getLabelCountByName(name);
+                    boolean error = dao.getLabelCountWhereID(ID) != 1 || dao.getLabelCountByName(name) != 0;
+                    String errorInfo = "The label does not exist or a label with the same name exists.";
 
-                    if (count == 0) {
+                    error = false;
+                    if (!error) {
+                        PhotoLabel label = new PhotoLabel();
+                        label.setID(ID);
+                        label.setName(name);
                         Date now = new Date();
                         label.setDateUpdated(now);
                         label.setCountUpdated(label.getCountUpdated() + 1);
 
                         dao.labelRename(label);
 
-                        JSONObject dataObj2 = new JSONObject();
-                        dataObj2.put("object1", label);
-                        resultObj.put("data", dataObj2);
-
                         JSONDataHelper.setResOK(resultObj);
                     } else {
-                        JSONDataHelper.setResErrorContentWithTheSameName(resultObj);
+                        JSONDataHelper.setResDataIncorrect(resultObj, errorInfo);
                     }
                 }
             }
             case OperateCode.DELETE -> {
-                if (ruleCode == RuleCode.DELETE_BY_ID) {
-                    int ID = getInt1(dataObj);
+                if (ruleCode == RuleCode.DELETE_BY_IDS) {
+                    int[] IDs = JSONHelper.getIntArr(dataObj);
 
-                    dao.deleteSomeLabel(new int[]{ID});
-                    JSONDataHelper.setResOK(resultObj);
+                    boolean error = IDs.length == 0;
+                    String errorInfo = "The ID array is empty.";
+
+                    if (!error) {
+                        for (int ID : IDs) {
+                            if (dao.getLabelCountWhereID(ID) != 1) {
+                                error = false;
+                                errorInfo = "Label does not exist.";
+                                break;
+                            }
+                        }
+                    }
+
+                    error = false;
+                    if (!error) {
+                        dao.deleteSomeLabel(IDs);
+                        JSONDataHelper.setResOK(resultObj);
+                    } else {
+                        JSONDataHelper.setResDataIncorrect(resultObj, errorInfo);
+                    }
                 }
             }
         }
     }
 
-    private int getInt1(@NotNull JSONObject jsonObject) {
-        return jsonObject.getIntValue("int1");
-    }
+    // Closed at 20220426-083352.
+    private void handlePhotoWithLabel(int operateCode, int ruleCode, @NotNull JSONObject dataObj, @NotNull JSONObject resultObj) {
+        switch (operateCode) {
+            case OperateCode.SELECT -> {
+            }
+            case OperateCode.INSERT -> {
+                if (ruleCode == RuleCode.INSERT_SOME) {
+                    Object[] objectArr = JSONHelper.getObjectArr(dataObj);
 
-    private String getString1(@NotNull JSONObject jsonObject) {
-        return jsonObject.getString("string1");
-    }
+                    boolean error = objectArr.length == 0;
+                    String errorInfo = "The data array is empty.";
 
-    private <T> T getObject1(@NotNull JSONObject jsonObject, Class<T> clazz) {
-        return jsonObject.getObject("object1", clazz);
-    }
+                    List<PhotoWithLabelEntity> list = new ArrayList<>();
+                    if (!error) {
+                        for (Object o : objectArr) {
+                            JSONObject obj = (JSONObject) o;
+                            PhotoWithLabelEntity entity = JSONHelper.castToPhotoWithLabel(obj);
 
-    private int @NotNull [] getIntArr(@NotNull JSONObject jsonObject) {
-        JSONArray intJSONArr = jsonObject.getJSONArray("intArr");
-        int[] intArr = new int[intJSONArr.size()];
-        for (int i = 0; i < intJSONArr.size(); i++) {
-            intArr[i] = intJSONArr.getIntValue(i);
-        }
-        return intArr;
-    }
+                            int labelID = entity.getLabelID();
+                            int photoID = entity.getPhotoID();
+                            if (dao.getLabelCountWhereID(labelID) != 1 || dao.getPhotoCountWhereID(photoID) != 1) {
+                                error = false;
+                                errorInfo = "The tag does not exist, or the photo does not exist.";
+                                break;
+                            }
 
-    private String @NotNull [] getStringArr(@NotNull JSONObject jsonObject) {
-        JSONArray stringJSONArr = jsonObject.getJSONArray("stringArr");
-        String[] stringArr = new String[stringJSONArr.size()];
-        for (int i = 0; i < stringJSONArr.size(); i++) {
-            stringArr[i] = stringJSONArr.getString(i);
-        }
-        return stringArr;
-    }
+                            list.add(entity);
+                        }
+                    }
 
-    private Object @NotNull [] getObjectArr(@NotNull JSONObject jsonObject) {
-        JSONArray stringJSONArr = jsonObject.getJSONArray("objectArr");
-        Object[] objArr = new Object[stringJSONArr.size()];
-        for (int i = 0; i < stringJSONArr.size(); i++) {
-            objArr[i] = stringJSONArr.get(i);
-        }
-        return objArr;
-    }
+                    error = false;
+                    if (!error) {
+                        dao.insertPhotoWithLabel(list);
+                        JSONDataHelper.setResOK(resultObj);
+                    } else {
+                        JSONDataHelper.setResDataIncorrect(resultObj, errorInfo);
+                    }
 
-    private @NotNull PhotoPhoto castToPhoto(@NotNull JSONObject jsonObject) {
-        // @version 20220418-065838
+                }
+            }
+            case OperateCode.UPDATE -> {
+            }
+            case OperateCode.DELETE -> {
+                if (ruleCode == RuleCode.DELETE_BY_LABEL_IDS) {
+                    int[] IDs = JSONHelper.getIntArr(dataObj);
 
-        PhotoPhoto photo = new PhotoPhoto();
-        photo.setID(jsonObject.getInteger("ID"));
-        photo.setIDFolder(jsonObject.getInteger("IDFolder"));
-        photo.setIDStory(jsonObject.getInteger("IDStory"));
-        photo.setIDsTag(getJSONInteger(jsonObject.getJSONArray("IDsTag")));
-        photo.setIDRegisterDevice(jsonObject.getInteger("IDRegisterDevice"));
-        photo.setIDsStorageDevice(getJSONInteger(jsonObject.getJSONArray("IDsStorageDevice")));
-        photo.setNameDisplay(jsonObject.getString("nameDisplay"));
-        photo.setNameStorage(jsonObject.getString("nameStorage"));
-        photo.setNameRegister(jsonObject.getString("nameRegister"));
-        photo.setNameFolder(jsonObject.getString("nameFolder"));
-        photo.setNamesTag(getJSONString(jsonObject.getJSONArray("namesTag")));
-        photo.setNamesStorageDevice(getJSONString(jsonObject.getJSONArray("namesStorageDevice")));
-        photo.setFileSize(jsonObject.getInteger("fileSize"));
-        photo.setWidth(jsonObject.getInteger("width"));
-        photo.setHeight(jsonObject.getInteger("height"));
-        photo.setMimeType(jsonObject.getString("mimeType"));
-        photo.setLatitude(jsonObject.getString("latitude"));
-        photo.setLongitude(jsonObject.getString("longitude"));
-        photo.setOrientation(jsonObject.getInteger("orientation"));
-        photo.setDateTaken(jsonObject.getDate("dateTaken"));
-        photo.setDescription(jsonObject.getString("description"));
-        photo.setMD5(jsonObject.getString("MD5"));
-        photo.setPresenceLocalFull(jsonObject.getBoolean("presenceLocalFull"));
-        photo.setPresenceLocalThumb(jsonObject.getBoolean("presenceLocalThumb"));
-        photo.setPresenceCloudThumb(jsonObject.getBoolean("presenceCloudThumb"));
-        photo.setPathLocalFull(jsonObject.getString("pathLocalFull"));
-        photo.setPathLocalThumb(jsonObject.getString("pathLocalThumb"));
-        photo.setDateRegistered(jsonObject.getDate("dateRegistered"));
-        photo.setDateUpdated(jsonObject.getDate("dateUpdated"));
-        photo.setCountUpdated(jsonObject.getInteger("countUpdated"));
-        return photo;
-    }
+                    boolean error = IDs.length == 0;
+                    String errorInfo = "The ID array is empty.";
 
-    @Contract(pure = true)
-    private Integer @NotNull [] getJSONInteger(JSONArray jsonArray) {
-        if (jsonArray == null) {
-            return new Integer[0];
-        }
-        Integer[] intArr = new Integer[jsonArray.size()];
-        for (int i = 0; i < jsonArray.size(); i++) {
-            intArr[i] = jsonArray.getInteger(i);
-        }
-        return intArr;
-    }
+                    if (!error) {
+                        for (int ID : IDs) {
+                            if (dao.getLabelCountWhereID(ID) != 1) {
+                                error = false;
+                                errorInfo = "Label does not exist.";
+                                break;
+                            }
+                        }
+                    }
 
-    @Contract(pure = true)
-    private String @NotNull [] getJSONString(JSONArray jsonArray) {
-        if (jsonArray == null) {
-            return new String[0];
-        }
-        String[] stringArr = new String[jsonArray.size()];
-        for (int i = 0; i < jsonArray.size(); i++) {
-            stringArr[i] = jsonArray.getString(i);
-        }
-        return stringArr;
-    }
+                    error = false;
+                    if (!error) {
+                        for (int ID : IDs) {
+                            dao.deletePhotoWithLabelWhereLabelID(ID);
+                        }
+                        JSONDataHelper.setResOK(resultObj);
+                    } else {
+                        JSONDataHelper.setResDataIncorrect(resultObj, errorInfo);
+                    }
 
-    public static class Data {
-        public int int1;
-        public String string1;
-        public Object data1;
+                } else if (ruleCode == RuleCode.DELETE_BY_IDS) {
+                    Object[] objectArr = JSONHelper.getObjectArr(dataObj);
 
-        public int[] intArr;
-        public String[] stringArr;
-        public Object[] dataArr;
+                    boolean error = objectArr.length == 0;
+                    String errorInfo = "The data array is empty.";
 
-        @Override
-        @NonNull
-        public String toString() {
-            return "Data{" +
-                    "int1=" + int1 +
-                    ", string1='" + string1 + '\'' +
-                    ", data1=" + data1 +
-                    ", intArr=" + Arrays.toString(intArr) +
-                    ", stringArr=" + Arrays.toString(stringArr) +
-                    ", dataArr=" + Arrays.toString(dataArr) +
-                    '}';
+                    List<PhotoWithLabelEntity> list = new ArrayList<>();
+                    if (!error) {
+                        Set<Integer> labelIDs = new HashSet<>();
+                        Set<Integer> photoIDs = new HashSet<>();
+
+                        for (Object o : objectArr) {
+                            JSONObject obj = (JSONObject) o;
+                            PhotoWithLabelEntity entity = JSONHelper.castToPhotoWithLabel(obj);
+
+                            labelIDs.add(entity.getLabelID());
+                            photoIDs.add(entity.getPhotoID());
+
+                            list.add(entity);
+                        }
+
+                        for (Integer ID : labelIDs) {
+                            if (dao.getLabelCountWhereID(ID) != 1) {
+                                error = false;
+                                errorInfo = "Label does not exist.";
+                                break;
+                            }
+                        }
+                        for (Integer ID : photoIDs) {
+                            if (dao.getPhotoCountWhereID(ID) != 1) {
+                                error = false;
+                                errorInfo = "Photo does not exist.";
+                                break;
+                            }
+                        }
+                    }
+
+                    error = false;
+                    if (!error) {
+                        for (PhotoWithLabelEntity entity : list) {
+                            dao.deletePhotoWithLabelWhereLabelIDAndPhotoID(entity);
+                        }
+                        JSONDataHelper.setResOK(resultObj);
+                    } else {
+                        JSONDataHelper.setResDataIncorrect(resultObj, errorInfo);
+                    }
+                }
+            }
         }
     }
 }

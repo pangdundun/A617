@@ -8,12 +8,11 @@ import java.util.Date;
 public class Device {
     @JSONField(name = "ID")
     private Integer ID;
-    @JSONField(name = "name")
+
     private String name;
 
-    @JSONField(name = "dateRegistered")
     private Date dateRegistered;
-    @JSONField(name = "dateVisited")
+
     private Date dateVisited;
 
     public Device() {

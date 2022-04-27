@@ -9,26 +9,23 @@ public class PhotoFolder {
     @JSONField(name = "ID")
     private Integer ID;
     @JSONField(name = "IDParent")
-    private Integer IDParent;
+    private int IDParent;
     @JSONField(name = "IDCreatedDevice")
-    private Integer IDCreatedDevice;
+    private int IDCreatedDevice;
     @JSONField(name = "IDCover")
     private Integer IDCover;
 
-    @JSONField(name = "nameStorage")
     private String nameStorage;
-    @JSONField(name = "nameDisplay")
+
     private String nameDisplay;
 
-    @JSONField(name = "description")
     private String description;
 
-    @JSONField(name = "dateCreated")
     private Date dateCreated;
-    @JSONField(name = "dateUpdated")
+
     private Date dateUpdated;
-    @JSONField(name = "countUpdated")
-    private Integer countUpdated;
+
+    private int countUpdated;
 
     public PhotoFolder() {
     }
@@ -41,19 +38,19 @@ public class PhotoFolder {
         this.ID = ID;
     }
 
-    public Integer getIDParent() {
+    public int getIDParent() {
         return IDParent;
     }
 
-    public void setIDParent(Integer IDParent) {
+    public void setIDParent(int IDParent) {
         this.IDParent = IDParent;
     }
 
-    public Integer getIDCreatedDevice() {
+    public int getIDCreatedDevice() {
         return IDCreatedDevice;
     }
 
-    public void setIDCreatedDevice(Integer IDCreatedDevice) {
+    public void setIDCreatedDevice(int IDCreatedDevice) {
         this.IDCreatedDevice = IDCreatedDevice;
     }
 
@@ -105,11 +102,11 @@ public class PhotoFolder {
         this.dateUpdated = dateUpdated;
     }
 
-    public Integer getCountUpdated() {
+    public int getCountUpdated() {
         return countUpdated;
     }
 
-    public void setCountUpdated(Integer countUpdated) {
+    public void setCountUpdated(int countUpdated) {
         this.countUpdated = countUpdated;
     }
 

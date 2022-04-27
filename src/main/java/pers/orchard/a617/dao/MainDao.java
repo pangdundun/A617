@@ -6,6 +6,7 @@ import pers.orchard.a617.bean.Version;
 import pers.orchard.a617.bean.photo.PhotoFolder;
 import pers.orchard.a617.bean.photo.PhotoPhoto;
 import pers.orchard.a617.bean.photo.PhotoLabel;
+import pers.orchard.a617.bean.photo.PhotoWithLabelEntity;
 
 import java.util.List;
 
@@ -22,6 +23,8 @@ public interface MainDao {
 
     int dropLabelTable();
 
+    int dropPhotoWithLabelTable();
+
     int createDeviceTable();
 
     int createFolderTable();
@@ -30,9 +33,13 @@ public interface MainDao {
 
     int createLabelTable();
 
+    int createPhotoWithLabelTable();
+
     int createVersionTable();
 
     List<Device> selectAllDevice();
+
+    List<Device> selectAllDeviceWithoutRoot();
 
     List<Device> selectAllDeviceWithoutID0();
 
@@ -46,11 +53,19 @@ public interface MainDao {
 
     int getFolderCountInSameFolderByName(int IDFolder, String nameDisplay);
 
+    int getFolderCountWhereID(int ID);
+
     List<PhotoPhoto> selectAllPhoto();
+
+    int getPhotoCountWhereID(int ID);
 
     List<PhotoLabel> selectAllLabel();
 
     int getLabelCountByName(String name);
+
+    int getLabelCountWhereID(int ID);
+
+    int getLabelCountWhereIDAndName(int ID, String name);
 
     Version selectAllVersion();
 
@@ -112,7 +127,21 @@ public interface MainDao {
 
     int deleteSomePhoto(int[] IDs);
 
+    int deletePhotoWhereFolderIDs(int[] IDs);
+
     int deleteSomeLabel(int[] IDs);
+
+    List<PhotoWithLabelEntity> selectAllPhotoWithLabel();
+
+    int getPhotoWithLabelCountWhereLabelID(int ID);
+
+    void insertPhotoWithLabel(List<PhotoWithLabelEntity> list);
+
+    int deletePhotoWithLabelWhereLabelID(int labelID);
+
+    int deletePhotoWithLabelWherePhotoID(int photoID);
+
+    int deletePhotoWithLabelWhereLabelIDAndPhotoID(PhotoWithLabelEntity entity);
 
     void clearVersion();
 
@@ -123,6 +152,8 @@ public interface MainDao {
     void clearPhoto();
 
     void clearLabel();
+
+    void clearPhotoWithLabel();
 
     void setNoAutoValueOnZero();
 

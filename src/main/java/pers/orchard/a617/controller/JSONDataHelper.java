@@ -27,6 +27,11 @@ public class JSONDataHelper {
         object.put("responseInfo", "Duplicate file name.");
     }
 
+    public static void setResDataIncorrect(@NotNull JSONObject object, String errorInfo) {
+        object.put("responseCode", ResponseCode.DATA_INCORRECT);
+        object.put("responseInfo", "The incoming data is incorrect. " + errorInfo);
+    }
+
     public static void setTimeConsuming(@NotNull JSONObject object, long startTime) {
         long endTime = Calendar.getInstance().getTime().getTime();
         long timeConsuming = endTime - startTime;

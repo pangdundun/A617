@@ -13,7 +13,7 @@ public class TestService {
         this.dao = dao;
     }
 
-    public void recreateAllTable() {
+    public void rebuildDatabase() {
         dao.closeForeignCheck();
 
         dao.dropVersionTable();
@@ -21,14 +21,19 @@ public class TestService {
         dao.dropFolderTable();
         dao.dropPhotoTable();
         dao.dropLabelTable();
+        dao.dropPhotoWithLabelTable();
 
         dao.setNoAutoValueOnZero();
-
         dao.createVersionTable();
         dao.createDeviceTable();
         dao.createFolderTable();
         dao.createPhotoTable();
         dao.createLabelTable();
+        dao.createPhotoWithLabelTable();
+
+        dao.setNoAutoValueOnZero();
+        dao.deviceInitial();
+        dao.folderInitial();
 
         dao.openForeignCheck();
     }

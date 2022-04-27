@@ -3,17 +3,18 @@ package pers.orchard.a617.controller;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONValidator;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-import pers.orchard.a617.constant.RequestCode;
-import pers.orchard.a617.service.FullPullService;
-import pers.orchard.a617.service.IncreaseService;
 import pers.orchard.a617.bean.Version;
+import pers.orchard.a617.constant.RequestCode;
 import pers.orchard.a617.service.CalibrationService;
+import pers.orchard.a617.service.FullService;
+import pers.orchard.a617.service.IncreaseService;
 import pers.orchard.a617.service.TestService;
 
 import java.text.SimpleDateFormat;
@@ -26,14 +27,14 @@ public class MainController {
 
     private final CalibrationService calibrationService;
     private final IncreaseService increaseService;
-    private final FullPullService fullPullService;
+    private final FullService fullService;
     private final TestService testService;
 
     @Autowired
-    public MainController(CalibrationService calibrationService, IncreaseService increaseService, FullPullService fullPullService, TestService testService) {
+    public MainController(CalibrationService calibrationService, IncreaseService increaseService, FullService fullService, TestService testService) {
         this.calibrationService = calibrationService;
         this.increaseService = increaseService;
-        this.fullPullService = fullPullService;
+        this.fullService = fullService;
         this.testService = testService;
     }
 
@@ -45,6 +46,7 @@ public class MainController {
     /**
      * Synchronous calibration.
      */
+    // close before 20220425-124137
 //    @RequestMapping("calibration")
     private String calibration(@NotNull @RequestBody String json) {
         JSONObject parse = JSON.parseObject(json);
@@ -77,25 +79,34 @@ public class MainController {
         JSONObject resultObj = new JSONObject();
         long startTime = Calendar.getInstance().getTime().getTime();
 
-        JSONObject parse = JSON.parseObject(json);
+        JSONObject parse = null;
+        if (JSONValidator.from(json).validate()) {
+            parse = JSON.parseObject(json);
+        }
 
-        Integer requestCode = parse.getInteger("requestCode");
-        Long requestTime = parse.getLong("requestTime");
-        Integer deviceID = parse.getInteger("deviceID");
+        if (parse != null) {
+            Integer requestCode = parse.getInteger("requestCode");
+            Long requestTime = parse.getLong("requestTime");
+            Integer deviceID = parse.getInteger("deviceID");
 
-        Integer typeCode = parse.getInteger("typeCode");
-        Integer operateCode = parse.getInteger("operateCode");
-        Integer ruleCode = parse.getInteger("ruleCode");
-        JSONObject dataObj = parse.getJSONObject("data");
+            Integer typeCode = parse.getInteger("typeCode");
+            Integer operateCode = parse.getInteger("operateCode");
+            Integer ruleCode = parse.getInteger("ruleCode");
+            JSONObject dataObj = parse.getJSONObject("data");
 
-        boolean error = requestCode == null || requestTime == null || deviceID == null || typeCode == null || operateCode == null || ruleCode == null || dataObj == null;
+            boolean error = requestCode == null || requestTime == null || deviceID == null || typeCode == null || operateCode == null || ruleCode == null || dataObj == null;
 
-        if (!error) {
-            if (requestCode == RequestCode.UPLOAD_INCREASE) {
-                increaseService.responseRecords(typeCode, operateCode, ruleCode, dataObj, resultObj);
+            if (!error) {
+                if (requestCode == RequestCode.UPLOAD_INCREASE) {
+                    increaseService.responseRecords(typeCode, operateCode, ruleCode, dataObj, resultObj);
+                } else {
+                    JSONDataHelper.setResDataIncorrect(resultObj);
+                }
+                resultObj.put("request" + "Time", requestTime);
+                resultObj.put("deviceID", deviceID);
+            } else {
+                JSONDataHelper.setResDataIncorrect(resultObj);
             }
-            resultObj.put("requestTime", requestTime);
-            resultObj.put("deviceID", deviceID);
         } else {
             JSONDataHelper.setResDataIncorrect(resultObj);
         }
@@ -119,28 +130,39 @@ public class MainController {
         JSONObject resultObj = new JSONObject();
         long startTime = Calendar.getInstance().getTime().getTime();
 
-        JSONObject parse = JSON.parseObject(json);
-        Integer requestCode = parse.getInteger("requestCode");
-        Long requestTime = parse.getLong("requestTime");
-        Integer deviceID = parse.getInteger("deviceID");
-        Integer typeCode = parse.getInteger("typeCode");
+        JSONObject parse = null;
+        if (JSONValidator.from(json).validate()) {
+            parse = JSON.parseObject(json);
+        }
 
-        boolean error = requestCode == null || requestTime == null || deviceID == null || typeCode == null;
+        if (parse != null) {
+            Integer requestCode = parse.getInteger("requestCode");
+            Long requestTime = parse.getLong("requestTime");
+            Integer deviceID = parse.getInteger("deviceID");
+            Integer typeCode = parse.getInteger("typeCode");
 
-        if (!error) {
-            if (requestCode == RequestCode.DOWNLOAD_ALL_DATA) {
-                Version cloudVersion = calibrationService.getCloudVersion();
-                resultObj.put("version", cloudVersion);
+            boolean error = requestCode == null || requestTime == null || deviceID == null || typeCode == null;
 
-                JSONArray record = fullPullService.fullPull(typeCode);
-                resultObj.put("data", record);
+            System.out.println("error::" + error);
+            if (!error) {
+                if (requestCode == RequestCode.DOWNLOAD_ALL_DATA) {
+                    Version cloudVersion = calibrationService.getCloudVersion();
+                    resultObj.put("version", cloudVersion);
 
-                JSONDataHelper.setResOK(resultObj);
+                    JSONArray record = fullService.fullPull(typeCode);
+                    resultObj.put("data", record);
+
+                    JSONDataHelper.setResOK(resultObj);
+                } else {
+                    JSONDataHelper.setResDataIncorrect(resultObj);
+                }
+
+                resultObj.put("requestTime", requestTime);
+                resultObj.put("deviceID", deviceID);
+
+            } else {
+                JSONDataHelper.setResDataIncorrect(resultObj);
             }
-
-            resultObj.put("requestTime", requestTime);
-            resultObj.put("deviceID", deviceID);
-
         } else {
             JSONDataHelper.setResDataIncorrect(resultObj);
         }
@@ -151,36 +173,93 @@ public class MainController {
         return res;
     }
 
+    @RequestMapping("fullPush")
+    @ResponseBody
+    private String fullPush(@NotNull @RequestBody String json) {
+        printStart("fullPush", json);
+
+        JSONObject resultObj = new JSONObject();
+        long startTime = Calendar.getInstance().getTime().getTime();
+
+        JSONObject parse = null;
+        if (JSONValidator.from(json).validate()) {
+            parse = JSON.parseObject(json);
+        }
+
+        if (parse != null) {
+            Integer requestCode = parse.getInteger("requestCode");
+            Long requestTime = parse.getLong("requestTime");
+            Integer deviceID = parse.getInteger("deviceID");
+
+            Integer typeCode = parse.getInteger("typeCode");
+            JSONObject dataObj = parse.getJSONObject("data");
+
+            boolean error = requestCode == null || requestTime == null || deviceID == null || typeCode == null || dataObj == null;
+
+            if (!error) {
+                if (requestCode == RequestCode.UPLOAD_ALL_DATA) {
+                    JSONArray record = fullService.fullPush(typeCode, resultObj, dataObj);
+                    resultObj.put("data", record);
+
+                } else {
+                    JSONDataHelper.setResDataIncorrect(resultObj);
+                }
+                resultObj.put("requestTime", requestTime);
+                resultObj.put("deviceID", deviceID);
+            } else {
+                JSONDataHelper.setResDataIncorrect(resultObj);
+            }
+        } else {
+            JSONDataHelper.setResDataIncorrect(resultObj);
+        }
+
+        JSONDataHelper.setTimeConsuming(resultObj, startTime);
+        String res = resultObj.toJSONString();
+        printEnd("fullPush", res);
+        return res;
+    }
+
     /**
      * Send @version 20220417-000532
      * <p>
      * Receive @version 20220417-000324
      */
-    @RequestMapping("recreateAllTable")
+    @RequestMapping("rebuildDatabase")
     @ResponseBody
-    private String recreateAllTable(@NotNull @RequestBody String json) {
+    private String rebuildDatabase(@NotNull @RequestBody String json) {
         printStart("recreateAllTable", json);
 
         JSONObject resultObj = new JSONObject();
         long startTime = Calendar.getInstance().getTime().getTime();
 
-        JSONObject parse = JSON.parseObject(json);
+        JSONObject parse = null;
+        if (JSONValidator.from(json).validate()) {
+            parse = JSON.parseObject(json);
+        }
 
-        Integer requestCode = parse.getInteger("requestCode");
-        Long requestTime = parse.getLong("requestTime");
-        Integer deviceID = parse.getInteger("deviceID");
+        if (parse != null) {
+            Integer requestCode = parse.getInteger("requestCode");
+            Long requestTime = parse.getLong("requestTime");
+            Integer deviceID = parse.getInteger("deviceID");
 
-        boolean error = requestCode == null || requestTime == null || deviceID == null;
+            boolean error = requestCode == null || requestTime == null || deviceID == null;
 
-        if (!error) {
-            if (requestCode == RequestCode.RECREATE_ALL_TABLE) {
-                testService.recreateAllTable();
+            if (!error) {
+                if (requestCode == RequestCode.REBUILD_DATABASE) {
+                    testService.rebuildDatabase();
 
-                JSONDataHelper.setResOK(resultObj);
+                    JSONDataHelper.setResOK(resultObj);
+                } else {
+                    JSONDataHelper.setResDataIncorrect(resultObj);
+                }
+
+                resultObj.put("requestTime", requestTime);
+                resultObj.put("deviceID", deviceID);
+            } else {
+                JSONDataHelper.setResDataIncorrect(resultObj);
             }
-
-            resultObj.put("requestTime", requestTime);
-            resultObj.put("deviceID", deviceID);
+        } else {
+            JSONDataHelper.setResDataIncorrect(resultObj);
         }
 
         JSONDataHelper.setTimeConsuming(resultObj, startTime);
@@ -202,23 +281,34 @@ public class MainController {
         JSONObject resultObj = new JSONObject();
         long startTime = Calendar.getInstance().getTime().getTime();
 
-        JSONObject parse = JSON.parseObject(json);
+        JSONObject parse = null;
+        if (JSONValidator.from(json).validate()) {
+            parse = JSON.parseObject(json);
+        }
 
-        Integer requestCode = parse.getInteger("requestCode");
-        Long requestTime = parse.getLong("requestTime");
-        Integer deviceID = parse.getInteger("deviceID");
+        if (parse != null) {
+            Integer requestCode = parse.getInteger("requestCode");
+            Long requestTime = parse.getLong("requestTime");
+            Integer deviceID = parse.getInteger("deviceID");
 
-        boolean error = requestCode == null || requestTime == null || deviceID == null;
+            boolean error = requestCode == null || requestTime == null || deviceID == null;
 
-        if (!error) {
-            if (requestCode == RequestCode.REINITIALIZE_ALL_TABLE) {
-                testService.reinitializeAllTable();
+            if (!error) {
+                if (requestCode == RequestCode.REINITIALIZE_ALL_TABLE) {
+                    testService.reinitializeAllTable();
 
-                JSONDataHelper.setResOK(resultObj);
+                    JSONDataHelper.setResOK(resultObj);
+                } else {
+                    JSONDataHelper.setResDataIncorrect(resultObj);
+                }
+
+                resultObj.put("requestTime", requestTime);
+                resultObj.put("deviceID", deviceID);
+            } else {
+                JSONDataHelper.setResDataIncorrect(resultObj);
             }
-
-            resultObj.put("requestTime", requestTime);
-            resultObj.put("deviceID", deviceID);
+        } else {
+            JSONDataHelper.setResDataIncorrect(resultObj);
         }
 
         JSONDataHelper.setTimeConsuming(resultObj, startTime);

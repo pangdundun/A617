@@ -11,76 +11,80 @@ import java.util.Date;
 public class PhotoPhoto {
     @JSONField(name = "ID")
     private Integer ID;
+
     @JSONField(name = "IDFolder")
-    private Integer IDFolder;
+    private int IDFolder;
+
     @JSONField(name = "IDStory")
     private Integer IDStory;
+
     @JSONField(name = "IDsTag")
-    private Integer[] IDsTag;
+    private int[] IDsTag;
+
     @JSONField(name = "IDsTagTransfer")
     private String IDsTagTransfer;
+
     @JSONField(name = "IDRegisterDevice")
-    private Integer IDRegisterDevice;
+    private int IDRegisterDevice;
+
     @JSONField(name = "IDsStorageDevice")
-    private Integer[] IDsStorageDevice;
+    private int[] IDsStorageDevice;
+
     @JSONField(name = "IDsStorageDeviceTransfer")
     private String IDsStorageDeviceTransfer;
 
-    @JSONField(name = "nameDisplay")
     private String nameDisplay;
-    @JSONField(name = "nameStorage")
+
     private String nameStorage;
-    @JSONField(name = "nameRegister")
+
     private String nameRegister;
-    @JSONField(name = "nameFolder")
+
     private String nameFolder;
-    @JSONField(name = "namesTag")
+
     private String[] namesTag;
-    @JSONField(name = "namesTagTransfer")
+
     private String namesTagTransfer;
-    @JSONField(name = "namesStorageDevice")
+
     private String[] namesStorageDevice;
-    @JSONField(name = "namesStorageDeviceTransfer")
+
     private String namesStorageDeviceTransfer;
 
-    @JSONField(name = "fileSize")
     private Integer fileSize;
-    @JSONField(name = "width")
+
     private Integer width;
-    @JSONField(name = "height")
+
     private Integer height;
-    @JSONField(name = "mimeType")
+
     private String mimeType;
-    @JSONField(name = "latitude")
+
     private String latitude;
-    @JSONField(name = "longitude")
+
     private String longitude;
-    @JSONField(name = "orientation")
+
     private Integer orientation;
-    @JSONField(name = "dateTaken")
+
     private Date dateTaken;
-    @JSONField(name = "description")
+
     private String description;
+
     @JSONField(name = "MD5")
     private String MD5;
 
-    @JSONField(name = "presenceLocalFull")
-    private Boolean presenceLocalFull;
-    @JSONField(name = "presenceLocalThumb")
-    private Boolean presenceLocalThumb;
-    @JSONField(name = "presenceCloudThumb")
-    private Boolean presenceCloudThumb;
-    @JSONField(name = "pathLocalFull")
+    private boolean presenceLocalFull;
+
+    private boolean presenceLocalThumb;
+
+    private boolean presenceCloudThumb;
+
     private String pathLocalFull;
-    @JSONField(name = "pathLocalThumb")
+
     private String pathLocalThumb;
 
-    @JSONField(name = "dateRegistered")
     private Date dateRegistered;
-    @JSONField(name = "dateUpdated")
+
     private Date dateUpdated;
-    @JSONField(name = "countUpdated")
-    private Integer countUpdated;
+
+    private int countUpdated;
 
     public PhotoPhoto() {
     }
@@ -93,11 +97,11 @@ public class PhotoPhoto {
         this.ID = ID;
     }
 
-    public Integer getIDFolder() {
+    public int getIDFolder() {
         return IDFolder;
     }
 
-    public void setIDFolder(Integer IDFolder) {
+    public void setIDFolder(int IDFolder) {
         this.IDFolder = IDFolder;
     }
 
@@ -109,11 +113,11 @@ public class PhotoPhoto {
         this.IDStory = IDStory;
     }
 
-    public Integer[] getIDsTag() {
+    public int[] getIDsTag() {
         return IDsTag;
     }
 
-    public void setIDsTag(Integer[] IDsTag) {
+    public void setIDsTag(int[] IDsTag) {
         this.IDsTag = IDsTag;
     }
 
@@ -124,7 +128,7 @@ public class PhotoPhoto {
     public void setIDsTagTransfer(String IDsTagTransfer) {
         JSONArray array = JSON.parseArray(IDsTagTransfer);
 
-        Integer[] arr = new Integer[array.size()];
+        int[] arr = new int[array.size()];
         for (int i = 0; i < array.size(); i++) {
             arr[i] = array.getInteger(i);
         }
@@ -139,11 +143,11 @@ public class PhotoPhoto {
         this.IDRegisterDevice = IDRegisterDevice;
     }
 
-    public Integer[] getIDsStorageDevice() {
+    public int[] getIDsStorageDevice() {
         return IDsStorageDevice;
     }
 
-    public void setIDsStorageDevice(Integer[] IDsStorageDevice) {
+    public void setIDsStorageDevice(int[] IDsStorageDevice) {
         this.IDsStorageDevice = IDsStorageDevice;
     }
 
@@ -154,7 +158,7 @@ public class PhotoPhoto {
     public void setIDsStorageDeviceTransfer(String IDsStorageDeviceTransfer) {
         JSONArray array = JSON.parseArray(IDsStorageDeviceTransfer);
 
-        Integer[] arr = new Integer[array.size()];
+        int[] arr = new int[array.size()];
         for (int i = 0; i < array.size(); i++) {
             arr[i] = array.getInteger(i);
         }
@@ -317,27 +321,27 @@ public class PhotoPhoto {
         this.MD5 = MD5;
     }
 
-    public Boolean getPresenceLocalFull() {
+    public boolean getPresenceLocalFull() {
         return presenceLocalFull;
     }
 
-    public void setPresenceLocalFull(Boolean presenceLocalFull) {
+    public void setPresenceLocalFull(boolean presenceLocalFull) {
         this.presenceLocalFull = presenceLocalFull;
     }
 
-    public Boolean getPresenceLocalThumb() {
+    public boolean getPresenceLocalThumb() {
         return presenceLocalThumb;
     }
 
-    public void setPresenceLocalThumb(Boolean presenceLocalThumb) {
+    public void setPresenceLocalThumb(boolean presenceLocalThumb) {
         this.presenceLocalThumb = presenceLocalThumb;
     }
 
-    public Boolean getPresenceCloudThumb() {
+    public boolean getPresenceCloudThumb() {
         return presenceCloudThumb;
     }
 
-    public void setPresenceCloudThumb(Boolean presenceCloudThumb) {
+    public void setPresenceCloudThumb(boolean presenceCloudThumb) {
         this.presenceCloudThumb = presenceCloudThumb;
     }
 
@@ -373,11 +377,11 @@ public class PhotoPhoto {
         this.dateUpdated = dateUpdated;
     }
 
-    public Integer getCountUpdated() {
+    public int getCountUpdated() {
         return countUpdated;
     }
 
-    public void setCountUpdated(Integer countUpdated) {
+    public void setCountUpdated(int countUpdated) {
         this.countUpdated = countUpdated;
     }
 

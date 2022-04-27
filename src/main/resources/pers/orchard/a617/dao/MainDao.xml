@@ -61,6 +61,12 @@
         <result column="count_updated" jdbcType="INTEGER" property="countUpdated"/>
     </resultMap>
 
+    <resultMap id="PhotoWithLabelResultMap" type="pers.orchard.a617.bean.photo.PhotoWithLabelEntity">
+        <id column="label_id" jdbcType="INTEGER" property="labelID"/>
+        <id column="photo_id" jdbcType="INTEGER" property="photoID"/>
+        <result column="date_created" jdbcType="TIMESTAMP" property="addedDate"/>
+    </resultMap>
+
     <resultMap id="VersionResultMap" type="pers.orchard.a617.bean.Version">
         <result column="device_version" jdbcType="INTEGER" property="deviceVersion"/>
         <result column="device_date" jdbcType="TIMESTAMP" property="deviceDateUpdated"/>
@@ -90,6 +96,10 @@
 
     <delete id="dropLabelTable">
         drop table if exists photo_label;
+    </delete>
+
+    <delete id="dropPhotoWithLabelTable">
+        DROP TABLE IF EXISTS photo_with_label;
     </delete>
 
     <update id="createDeviceTable">
@@ -205,6 +215,21 @@
           COLLATE = utf8mb4_0900_ai_ci;
     </update>
 
+    <update id="createPhotoWithLabelTable">
+        CREATE TABLE `photo_with_label`
+        (
+            `label_id`  int NOT NULL,
+            `photo_id`  int NOT NULL,
+            `add_dated` datetime DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (`label_id`, `photo_id`),
+            KEY `photo_id` (`photo_id`),
+            CONSTRAINT `photo_with_label_ibfk_1` FOREIGN KEY (`label_id`) REFERENCES `photo_label` (`id`) ON DELETE CASCADE,
+            CONSTRAINT `photo_with_label_ibfk_2` FOREIGN KEY (`photo_id`) REFERENCES `photo_photo` (`id`) ON DELETE CASCADE
+        ) ENGINE = InnoDB
+          DEFAULT CHARSET = utf8mb4
+          COLLATE = utf8mb4_0900_ai_ci;
+    </update>
+
     <insert id="versionInitial">
         insert into version (name, version)
         VALUES ('device', 1),
@@ -253,7 +278,7 @@
         insert into device (id, name, date_registered, date_visited)
         values
         <foreach collection="list" item="folder" separator=", ">
-            (#{ID}, #{name}, #{dateRegistered}, #{dateVisited})
+            (#{folder.ID}, #{folder.name}, #{folder.dateRegistered}, #{folder.dateVisited})
         </foreach>
     </insert>
 
@@ -275,9 +300,9 @@
         date_created, date_updated, count_updated)
         VALUES
         <foreach collection="list" item="folder" separator=", ">
-            (#{ID}, #{IDParent}, #{IDCreatedDevice}, #{IDCover}, #{nameStorage},
-            #{nameDisplay}, #{description}, #{dateCreated}, #{dateUpdated},
-            #{countUpdated})
+            (#{folder.ID}, #{folder.IDParent}, #{folder.IDCreatedDevice}, #{folder.IDCover}, #{folder.nameStorage},
+            #{folder.nameDisplay}, #{folder.description}, #{folder.dateCreated}, #{folder.dateUpdated},
+            #{folder.countUpdated})
         </foreach>
     </insert>
 
@@ -322,9 +347,10 @@
         insert into photo_label (id, name, date_created, date_updated, count_updated)
         values
         <foreach collection="list" item="label" separator=", ">
-            (#{label.ID},#{label.name},#{label.dateCreated},#{label.dateUpdated},#{label.countUpdated})
+            (#{label.ID}, #{label.name}, #{label.dateCreated},#{label.dateUpdated}, #{label.countUpdated})
         </foreach>
     </insert>
+
 
     <update id="deviceUpdate">
         UPDATE device t
@@ -474,11 +500,57 @@
         </foreach>
     </delete>
 
+    <delete id="deletePhotoWhereFolderIDs">
+        DELETE FROM photo_photo WHERE id_folder in
+        <foreach collection="IDs" item="ID" open="(" close=")" separator=", ">
+            #{ID}
+        </foreach>
+    </delete>
+
     <delete id="deleteSomeLabel">
         DELETE FROM photo_label WHERE id in
         <foreach collection="IDs" item="ID" open="(" close=")" separator=", ">
             #{ID}
         </foreach>
+    </delete>
+
+    <select id="selectAllPhotoWithLabel"
+            resultType="pers.orchard.a617.bean.photo.PhotoWithLabelEntity">
+        SELECT *
+        FROM photo_with_label
+    </select>
+
+    <select id="getPhotoWithLabelCountWhereLabelID" resultType="java.lang.Integer">
+        SELECT count(*)
+        FROM photo_with_label
+        WHERE label_id = #{ID}
+    </select>
+
+    <insert id="insertPhotoWithLabel">
+        INSERT INTO photo_with_label
+        (label_id, photo_id, add_dated) VALUES
+        <foreach collection="list" item="entity" separator=", ">
+            (#{entity.labelID}, #{entity.photoID}, #{entity.addedDate})
+        </foreach>
+    </insert>
+
+    <delete id="deletePhotoWithLabelWhereLabelID">
+        DELETE
+        FROM photo_with_label
+        WHERE label_id = #{labelID}
+    </delete>
+
+    <delete id="deletePhotoWithLabelWherePhotoID">
+        DELETE
+        FROM photo_with_label
+        WHERE photo_id = #{photoID}
+    </delete>
+
+    <delete id="deletePhotoWithLabelWhereLabelIDAndPhotoID">
+        DELETE
+        FROM photo_with_label
+        WHERE label_id = #{labelID}
+          AND photo_id = #{photoID};
     </delete>
 
     <delete id="clearVersion">
@@ -503,9 +575,20 @@
         from photo_label;
     </delete>
 
+    <delete id="clearPhotoWithLabel">
+        DELETE
+        FROM photo_with_label;
+    </delete>
+
     <select id="selectAllDevice" resultMap="DeviceResultMap">
         select *
         from device;
+    </select>
+
+    <select id="selectAllDeviceWithoutRoot" resultType="pers.orchard.a617.bean.Device">
+        SELECT *
+        FROM device
+        WHERE id != 0
     </select>
 
     <select id="selectAllDeviceWithoutID0" resultType="pers.orchard.a617.bean.Device">
@@ -544,9 +627,21 @@
           AND name_display = #{nameDisplay};
     </select>
 
+    <select id="getFolderCountWhereID" resultType="java.lang.Integer">
+        SELECT count(*)
+        FROM photo_folder
+        WHERE id = #{ID}
+    </select>
+
     <select id="selectAllPhoto" resultMap="PhotoResultMap">
         select *
         from photo_photo;
+    </select>
+
+    <select id="getPhotoCountWhereID" resultType="java.lang.Integer">
+        SELECT count(*)
+        FROM photo_photo
+        WHERE id = #{ID}
     </select>
 
     <select id="selectAllLabel" resultMap="LabelResultMap">
@@ -558,6 +653,19 @@
         SELECT count(*)
         FROM photo_label
         WHERE name = #{name};
+    </select>
+
+    <select id="getLabelCountWhereID" resultType="java.lang.Integer">
+        SELECT count(*)
+        FROM photo_label
+        WHERE id = #{ID};
+    </select>
+
+    <select id="getLabelCountWhereIDAndName" resultType="java.lang.Integer">
+        SELECT count(*)
+        FROM photo_label
+        WHERE id = #{ID}
+          AND name = #{name}
     </select>
 
     <select id="selectAllVersion" resultMap="VersionResultMap">

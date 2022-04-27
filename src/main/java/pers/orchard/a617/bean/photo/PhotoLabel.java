@@ -7,15 +7,14 @@ import java.util.Date;
 public class PhotoLabel {
     @JSONField(name = "ID")
     private Integer ID;
-    @JSONField(name = "name")
+
     private String name;
 
-    @JSONField(name = "dateCreated")
     private Date dateCreated;
-    @JSONField(name = "dateUpdated")
+
     private Date dateUpdated;
-    @JSONField(name = "countUpdated")
-    private Integer countUpdated;
+
+    private int countUpdated;
 
     public PhotoLabel() {
 
@@ -53,11 +52,11 @@ public class PhotoLabel {
         this.dateUpdated = dateUpdated;
     }
 
-    public Integer getCountUpdated() {
+    public int getCountUpdated() {
         return countUpdated;
     }
 
-    public void setCountUpdated(Integer countUpdated) {
+    public void setCountUpdated(int countUpdated) {
         this.countUpdated = countUpdated;
     }
 
