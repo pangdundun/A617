@@ -515,7 +515,7 @@
     </delete>
 
     <select id="selectAllPhotoWithLabel"
-            resultType="pers.orchard.a617.bean.photo.PhotoWithLabelEntity">
+            resultMap="PhotoWithLabelResultMap">
         SELECT *
         FROM photo_with_label
     </select>
@@ -585,19 +585,19 @@
         from device;
     </select>
 
-    <select id="selectAllDeviceWithoutRoot" resultType="pers.orchard.a617.bean.Device">
+    <select id="selectAllDeviceWithoutRoot" resultMap="DeviceResultMap">
         SELECT *
         FROM device
         WHERE id != 0
     </select>
 
-    <select id="selectAllDeviceWithoutID0" resultType="pers.orchard.a617.bean.Device">
+    <select id="selectAllDeviceWithoutID0" resultMap="DeviceResultMap">
         select *
         from device
         where id != 0;
     </select>
 
-    <select id="selectDeviceByID" resultType="pers.orchard.a617.bean.Device">
+    <select id="selectDeviceByID" resultMap="DeviceResultMap">
         select *
         from device
         where id = #{ID};
@@ -608,13 +608,13 @@
         from photo_folder;
     </select>
 
-    <select id="selectAllFolderWithoutID0" resultType="pers.orchard.a617.bean.photo.PhotoFolder">
+    <select id="selectAllFolderWithoutID0" resultMap="FolderResultMap">
         select *
         from photo_folder
         where id != 0;
     </select>
 
-    <select id="selectFolderByID" resultType="pers.orchard.a617.bean.photo.PhotoFolder">
+    <select id="selectFolderByID" resultMap="FolderResultMap">
         select *
         from photo_folder
         where id = #{ID};
